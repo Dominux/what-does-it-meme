@@ -1,5 +1,8 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use envconfig::Envconfig;
+
+mod config;
 
 async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
@@ -7,7 +10,8 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // TODO: add getting host and port
+    let config = config::Config::init_from_env().unwrap();
+
     HttpServer::new(|| {
         // Adding cors
         let cors = Cors::default().allow_any_origin();
@@ -15,7 +19,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("0.0.0.0", 8080))? 
+    .bind((config.host, config.port))? 
     .run()
     .await
 }
