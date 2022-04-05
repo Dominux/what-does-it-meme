@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate diesel;
+
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use envconfig::Envconfig;
@@ -5,9 +8,9 @@ use envconfig::Envconfig;
 use apps::games::router::register_router as games_router;
 use common::db;
 
-mod apps;
-mod common;
 mod config;
+mod common;
+mod apps;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
