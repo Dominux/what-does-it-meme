@@ -20,4 +20,6 @@ services:
       - .env
     ports:
       - ${PGPORT}:${PGPORT}
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
