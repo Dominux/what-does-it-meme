@@ -5,7 +5,6 @@ use envconfig::Envconfig;
 use apps::games::router::{register_router as games_router};
 
 mod config;
-mod common;
 mod apps;
 
 async fn manual_hello() -> impl Responder {

@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY ./server .
 
-RUN cargo install --path .
+# RUN cargo install --path .
 RUN cargo build
