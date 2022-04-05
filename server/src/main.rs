@@ -7,6 +7,7 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // TODO: add getting host and port
     HttpServer::new(|| {
         // Adding cors
         let cors = Cors::default().allow_any_origin();
@@ -14,7 +15,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))? 
     .run()
     .await
 }
