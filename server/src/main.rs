@@ -1,29 +1,28 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
 use envconfig::Envconfig;
 
-use apps::games::router::{register_router as games_router};
+use apps::games::router::register_router as games_router;
+use common::db;
 
-mod config;
 mod apps;
-
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
-}
+mod common;
+mod config;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = config::Config::init_from_env().unwrap();
+    let db_pool = db::get_dbpool(config.get_db_uri());
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         // Adding cors
         let cors = Cors::default().allow_any_origin();
         App::new()
+            .app_data(web::Data::new(db_pool.clone()))
             .wrap(cors)
-            .route("/hey", web::get().to(manual_hello))
             .service(web::scope("games").configure(games_router))
     })
-    .bind((config.host, config.port))? 
+    .bind((config.host, config.port))?
     .run()
     .await
 }

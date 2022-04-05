@@ -11,5 +11,5 @@ actix-cors = "0.6.1"
 
 envconfig = "0.10.0"
 
-diesel = { version = "1.4.4", features = ["postgres"] }
-dotenv = "0.15.0"
+diesel = { version = "1.4.4", features = ["r2d2", "postgres"] }
+# dotenv = "0.15.0"
