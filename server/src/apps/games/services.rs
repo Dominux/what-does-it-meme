@@ -8,7 +8,6 @@ pub struct GamesService<'a> {
 }
 
 impl<'a> GamesService<'a> {
-    // TODO: add trait to create services
     pub fn new(db: &'a DBConnection) -> Self {
         Self {
             repo: GamesRepository::new(db),

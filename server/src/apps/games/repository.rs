@@ -10,7 +10,6 @@ pub struct GamesRepository<'a> {
 }
 
 impl<'a> GamesRepository<'a> {
-    // TODO: add repo trait to locate the logic for creating new repo in one place
     pub fn new(db: &'a DBConnection) -> Self {
         Self { db: db }
     }
