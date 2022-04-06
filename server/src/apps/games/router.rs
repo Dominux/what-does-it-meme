@@ -1,13 +1,16 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse, http::StatusCode};
 use uuid::Uuid;
 
-use crate::{apps::games::services::GamesService, common::{db::DBPool, errors::AppResult}};
+use crate::{
+    apps::games::services::GamesService,
+    common::{db::DBPool, errors::AppResult},
+};
 
 #[post("")]
 async fn create_game(db_pool: web::Data<DBPool>) -> AppResult<HttpResponse> {
     let db = db_pool.get()?;
     let game = web::block(move || GamesService::new(&db).create_game()).await??;
-    Ok(HttpResponse::Ok().json(game))
+    Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(game))
 }
 
 #[get("/{id}")]

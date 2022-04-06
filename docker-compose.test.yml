@@ -6,13 +6,15 @@ services:
     build:
       dockerfile: test.Dockerfile
       context: .
-    command: ./target/debug/what_meme_it_is
+    command: cargo test
+    depends_on:
+      - db
     env_file:
       - .env
     ports:
       - ${PORT}:${PORT}
-    tty: true
-    stdin_open: true
+    # tty: true
+    # stdin_open: true
 
   db:
     image: postgres:14-alpine

@@ -1,1 +1,11 @@
+# Important, cause it weights a lot
 server/target
+
+# Unessesary
+.dockerignore
+Makefile
+.editorconfig
+.env
+.gitignore
+docker-compose.test.yml
+test.Dockerfile

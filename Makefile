@@ -1,6 +1,6 @@
-run:
+test_all:
 	docker-compose -f docker-compose.test.yml up --build --force-recreate
 
-run_server:
+test:
 	docker-compose -f docker-compose.test.yml build && \
 	docker-compose -f docker-compose.test.yml run server
