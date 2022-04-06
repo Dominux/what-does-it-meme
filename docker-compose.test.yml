@@ -2,15 +2,15 @@ version: '3.8'
 
 services:
 
-  server:
-    build:
-      dockerfile: test.Dockerfile
-      context: .
-    command: ./target/debug/what_meme_it_is
-    env_file:
-      - .env
-    ports:
-      - ${PORT}:${PORT}
+  # server:
+  #   build:
+  #     dockerfile: test.Dockerfile
+  #     context: .
+  #   command: ./target/debug/what_meme_it_is
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - ${PORT}:${PORT}
     # tty: true
     # stdin_open: true
 
