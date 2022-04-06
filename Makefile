@@ -1,6 +1,5 @@
 run:
-	docker-compose -f docker-compose.test.yml up --build --force-recreate -d && \
-	cd server && cargo run
+	docker-compose -f docker-compose.test.yml up --build --force-recreate
 
 run_server:
 	docker-compose -f docker-compose.test.yml build && \

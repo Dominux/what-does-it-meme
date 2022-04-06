@@ -1,7 +1,6 @@
-use std::{ops::FromResidual, convert::Infallible};
-
-use actix_web::{ResponseError, http::StatusCode, HttpResponse};
-use diesel::{r2d2::Error as R2d2Error, result::{Error as DieselError}};
+use actix_web::{ResponseError, http::StatusCode, HttpResponse, error::BlockingError};
+use diesel::result::{Error as DieselError};
+use r2d2::{Error as R2d2Error};
 use thiserror;
 
 /// Generic app error
@@ -33,6 +32,12 @@ impl From<Box<dyn std::error::Error>> for AppError {
     }
 }
 
+impl From<BlockingError> for AppError {
+    fn from(_: BlockingError) -> Self {
+        Self::Unknown
+    }
+}
+
 impl From<DieselError> for AppError {
     fn from(_: DieselError) -> Self {
         Self::Unknown
@@ -41,18 +46,6 @@ impl From<DieselError> for AppError {
 
 impl From<R2d2Error> for AppError {
     fn from(_: R2d2Error) -> Self {
-        Self::Unknown
-    }
-}
-
-impl FromResidual<Result<Infallible, DieselError>> for AppError {
-    fn from_residual(residual: Result<Infallible, DieselError>) -> Self {
-        Self::Unknown
-    }
-}
-
-impl FromResidual<Result<Infallible, R2d2Error>> for AppError {
-    fn from_residual(residual: Result<Infallible, R2d2Error>) -> Self {
         Self::Unknown
     }
 }

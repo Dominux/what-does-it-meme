@@ -18,4 +18,8 @@ impl<'a> GamesService<'a> {
     pub fn create_game(&self) -> AppResult<models::Game> {
         self.repo.create_game()
     }
+
+    pub fn get_game_by_id(&self, id: uuid::Uuid) -> AppResult<models::Game> {
+        self.repo.get_game(id)
+    }
 }

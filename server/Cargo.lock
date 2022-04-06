@@ -1273,6 +1273,7 @@ dependencies = [
  "actix-web",
  "diesel",
  "envconfig",
+ "r2d2",
  "serde",
  "serde_json",
  "thiserror",
