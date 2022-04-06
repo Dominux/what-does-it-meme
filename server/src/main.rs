@@ -1,3 +1,4 @@
+#![feature(try_trait_v2)]
 #[macro_use]
 extern crate diesel;
 
@@ -7,14 +8,14 @@ use envconfig::Envconfig;
 
 use apps::games::router::register_router as games_router;
 use common::db;
+use common::config::Config;
 
-mod config;
 mod common;
 mod apps;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let config = config::Config::init_from_env().unwrap();
+    let config = Config::init_from_env().unwrap();
     let db_pool = db::get_dbpool(config.get_db_uri());
 
     HttpServer::new(move || {
