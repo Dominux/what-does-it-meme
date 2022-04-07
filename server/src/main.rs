@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate diesel;
+extern crate diesel_derive_enum;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};

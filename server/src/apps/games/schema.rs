@@ -1,5 +1,7 @@
-table!{
-    games (id) {
+table! {
+    games {
         id -> Uuid,
+        state -> Text,
+        // TODO
     }
 }
