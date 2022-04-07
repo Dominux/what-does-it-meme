@@ -4,6 +4,7 @@ use lazy_static::lazy_static;
 
 use crate::apps::games::models;
 use crate::apps::games::router::register_router as games_router;
+use crate::apps::games::state_enum::GameState;
 use crate::common::{
     config::Config,
     db::{get_dbpool, DBPool},
@@ -33,8 +34,9 @@ async fn test_create_and_get_game() {
         test::read_body_json(response).await
     };
 
-    // Getting game
+    assert!(std::matches!(game.state, GameState::NotStarted), "Game should be stopped");
 
+    // Getting game
     {
         let req = test::TestRequest::get()
             .uri(format!("/games/{}", game.id).as_str())
@@ -44,5 +46,6 @@ async fn test_create_and_get_game() {
 
         let game_from_get: models::Game = test::read_body_json(response).await;
         assert_eq!(game.id, game_from_get.id);
+        assert!(std::matches!(game_from_get.state, GameState::NotStarted), "Game should be stopped");
     }
 }

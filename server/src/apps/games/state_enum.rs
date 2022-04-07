@@ -3,7 +3,6 @@ use diesel::{
     sql_types::Text,
     types::{FromSql, IsNull, ToSql},
 };
-use diesel_derive_enum::DbEnum;
 use serde::{Serialize, Deserialize};
 
 // diesel-enum and diesel-enum-derive didn't work for me for some reason

@@ -1,7 +1,7 @@
 use super::repository::GamesRepository;
 use crate::apps::games::models;
 use crate::common::db::DBConnection;
-use crate::common::errors::AppResult;
+use crate::common::errors::MemeResult;
 
 pub struct GamesService<'a> {
     repo: GamesRepository<'a>,
@@ -14,11 +14,11 @@ impl<'a> GamesService<'a> {
         }
     }
 
-    pub fn create_game(&self) -> AppResult<models::Game> {
+    pub fn create_game(&self) -> MemeResult<models::Game> {
         self.repo.create_game()
     }
 
-    pub fn get_game_by_id(&self, id: uuid::Uuid) -> AppResult<models::Game> {
+    pub fn get_game_by_id(&self, id: uuid::Uuid) -> MemeResult<models::Game> {
         self.repo.get_game(id)
     }
 }

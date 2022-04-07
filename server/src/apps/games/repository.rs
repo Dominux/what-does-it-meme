@@ -1,9 +1,12 @@
+use std::time::SystemTime;
+
 use diesel::prelude::*;
 use uuid;
 
 use crate::apps::games::models;
+use crate::apps::games::state_enum::GameState;
 use crate::common::db::DBConnection;
-use crate::common::errors::{AppError, AppResult};
+use crate::common::errors::{MemeError, MemeResult};
 
 pub struct GamesRepository<'a> {
     db: &'a DBConnection,
@@ -14,11 +17,13 @@ impl<'a> GamesRepository<'a> {
         Self { db: db }
     }
 
-    pub fn create_game(&self) -> AppResult<models::Game> {
+    pub fn create_game(&self) -> MemeResult<models::Game> {
         use crate::apps::games::schema::games::dsl::*;
 
         let game = models::Game {
             id: uuid::Uuid::new_v4(),
+            state: GameState::NotStarted,
+            timestamp: Some(SystemTime::now()),
         };
 
         diesel::insert_into(games).values(&game).execute(self.db)?;
@@ -26,14 +31,14 @@ impl<'a> GamesRepository<'a> {
         Ok(game)
     }
 
-    pub fn get_game(&self, uid: uuid::Uuid) -> AppResult<models::Game> {
+    pub fn get_game(&self, uid: uuid::Uuid) -> MemeResult<models::Game> {
         use crate::apps::games::schema::games::dsl::*;
 
         let game = games
             .filter(id.eq(uid))
             .first::<models::Game>(self.db)
             .optional()?
-            .ok_or(AppError::NotFound)?;
+            .ok_or(MemeError::NotFound)?;
         Ok(game)
     }
 }

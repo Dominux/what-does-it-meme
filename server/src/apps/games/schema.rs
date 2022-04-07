@@ -2,6 +2,6 @@ table! {
     games {
         id -> Uuid,
         state -> Text,
-        // TODO
+        timestamp -> Nullable<Timestamp>,
     }
 }

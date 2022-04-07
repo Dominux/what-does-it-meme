@@ -5,7 +5,7 @@ use thiserror;
 
 /// Generic app error
 #[derive(thiserror::Error, Debug)]
-pub enum AppError {
+pub enum MemeError {
     #[error("Not Found")]
     NotFound,
 
@@ -13,7 +13,7 @@ pub enum AppError {
     Unknown,
 }
 
-impl ResponseError for AppError {
+impl ResponseError for MemeError {
     fn status_code(&self) -> StatusCode {
         match self {
             Self::NotFound => StatusCode::NOT_FOUND,
@@ -26,29 +26,29 @@ impl ResponseError for AppError {
     }
 }
 
-impl From<Box<dyn std::error::Error>> for AppError {
+impl From<Box<dyn std::error::Error>> for MemeError {
     fn from(_: Box<dyn std::error::Error>) -> Self {
         Self::Unknown
     }
 }
 
-impl From<BlockingError> for AppError {
+impl From<BlockingError> for MemeError {
     fn from(_: BlockingError) -> Self {
         Self::Unknown
     }
 }
 
-impl From<DieselError> for AppError {
+impl From<DieselError> for MemeError {
     fn from(_: DieselError) -> Self {
         Self::Unknown
     }
 }
 
-impl From<R2d2Error> for AppError {
+impl From<R2d2Error> for MemeError {
     fn from(_: R2d2Error) -> Self {
         Self::Unknown
     }
 }
 
 /// Generic app result
-pub type AppResult<T> = Result<T, AppError>;
+pub type MemeResult<T> = Result<T, MemeError>;
