@@ -11,35 +11,35 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, AsExpression, FromSqlRow)]
 #[sql_type = "Text"]
-pub enum GameState {
+pub enum RoomState {
     NotStarted,
     Started,
     Ended,
 }
 
-impl ToSql<Text, Pg> for GameState {
+impl ToSql<Text, Pg> for RoomState {
     fn to_sql<W: std::io::Write>(
         &self,
         out: &mut diesel::serialize::Output<W, Pg>,
     ) -> diesel::serialize::Result {
         match *self {
-            GameState::NotStarted => out.write_all(b"not_started")?,
-            GameState::Started => out.write_all(b"started")?,
-            GameState::Ended => out.write_all(b"ended")?,
+            RoomState::NotStarted => out.write_all(b"not_started")?,
+            RoomState::Started => out.write_all(b"started")?,
+            RoomState::Ended => out.write_all(b"ended")?,
         }
 
         Ok(IsNull::No)
     }
 }
 
-impl FromSql<Text, Pg> for GameState {
+impl FromSql<Text, Pg> for RoomState {
     fn from_sql(
         bytes: Option<&<Pg as diesel::backend::Backend>::RawValue>,
     ) -> diesel::deserialize::Result<Self> {
         match not_none!(bytes) {
-            b"not_started" => Ok(GameState::NotStarted),
-            b"started" => Ok(GameState::Started),
-            b"ended" => Ok(GameState::Ended),
+            b"not_started" => Ok(RoomState::NotStarted),
+            b"started" => Ok(RoomState::Started),
+            b"ended" => Ok(RoomState::Ended),
             _ => Err("Unrecognized enum variant".into())
         }
     }

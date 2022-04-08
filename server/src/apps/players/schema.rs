@@ -1,7 +1,7 @@
 table! {
-    users {
+    players {
         id -> Uuid,
         name -> Text,
-        game_id -> Uuid,
+        room_id -> Uuid,
     }
 }
