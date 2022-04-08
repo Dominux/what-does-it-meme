@@ -44,3 +44,4 @@ impl FromSql<Text, Pg> for GameState {
         }
     }
 }
+

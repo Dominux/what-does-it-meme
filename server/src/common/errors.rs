@@ -1,6 +1,6 @@
-use actix_web::{ResponseError, http::StatusCode, HttpResponse, error::BlockingError};
-use diesel::result::{Error as DieselError};
-use r2d2::{Error as R2d2Error};
+use actix_web::{error::BlockingError, http::StatusCode, HttpResponse, ResponseError};
+use diesel::result::Error as DieselError;
+use r2d2::Error as R2d2Error;
 use thiserror;
 
 /// Generic app error
@@ -8,6 +8,9 @@ use thiserror;
 pub enum MemeError {
     #[error("Not Found")]
     NotFound,
+
+    #[error("State transition not allowed")]
+    NotAllowedStateTransition,
 
     #[error("Unknown")]
     Unknown,
@@ -17,6 +20,7 @@ impl ResponseError for MemeError {
     fn status_code(&self) -> StatusCode {
         match self {
             Self::NotFound => StatusCode::NOT_FOUND,
+            Self::NotAllowedStateTransition => StatusCode::LOCKED,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

@@ -1,10 +1,7 @@
-use std::time::SystemTime;
-
 use diesel::prelude::*;
 use uuid;
 
 use crate::apps::games::models;
-use crate::apps::games::state_enum::GameState;
 use crate::common::db::DBConnection;
 use crate::common::errors::{MemeError, MemeResult};
 
@@ -20,12 +17,7 @@ impl<'a> GamesRepository<'a> {
     pub fn create_game(&self) -> MemeResult<models::Game> {
         use crate::apps::games::schema::games::dsl::*;
 
-        let game = models::Game {
-            id: uuid::Uuid::new_v4(),
-            state: GameState::NotStarted,
-            timestamp: Some(SystemTime::now()),
-        };
-
+        let game = models::Game::new();
         diesel::insert_into(games).values(&game).execute(self.db)?;
 
         Ok(game)
