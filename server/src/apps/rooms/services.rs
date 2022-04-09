@@ -21,4 +21,24 @@ impl<'a> RoomsService<'a> {
     pub fn get_room_by_id(&self, id: uuid::Uuid) -> MemeResult<models::Room> {
         self.repo.get_room(id)
     }
+
+    pub fn start_game(&self, id: uuid::Uuid) -> MemeResult<()> {
+        let mut room = self.get_room_by_id(id)?;
+
+        room.start_game()?;
+        self.repo.update_room(room)?;
+
+        Ok(())
+    }
+
+    pub fn end_game(&self, id: uuid::Uuid) -> MemeResult<()> {
+        let mut room = self.get_room_by_id(id)?;
+
+        room.end_game()?;
+        self.repo.update_room(room)?;
+
+        println!("{:?}", room);
+
+        Ok(())
+    }
 }

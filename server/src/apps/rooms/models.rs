@@ -26,7 +26,7 @@ impl Room {
         }
     }
 
-    pub fn start(&mut self) -> MemeResult<()> {
+    pub fn start_game(&mut self) -> MemeResult<()> {
         match self.state {
             RoomState::NotStarted => Ok({
                 self.state = RoomState::Started;
@@ -37,7 +37,7 @@ impl Room {
         }
     }
 
-    pub fn end(&mut self) -> MemeResult<()> {
+    pub fn end_game(&mut self) -> MemeResult<()> {
         match self.state {
             RoomState::Started => Ok({
                 self.state = RoomState::Ended;

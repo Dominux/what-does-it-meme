@@ -33,4 +33,14 @@ impl<'a> RoomsRepository<'a> {
             .ok_or(MemeError::NotFound)?;
         Ok(room)
     }
+
+    pub fn update_room(&self, room: models::Room) -> MemeResult<()> {
+        use crate::apps::rooms::schema::rooms::dsl::*;
+
+        diesel::update(rooms.filter(id.eq(room.id)))
+            .set((state.eq(room.state), timestamp.eq(room.timestamp)))
+            .execute(self.db)?;
+
+        Ok(())
+    }
 }

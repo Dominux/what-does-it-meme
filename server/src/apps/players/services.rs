@@ -19,7 +19,7 @@ impl<'a> PlayersService<'a> {
     }
 
     pub fn add_player(&self, in_player: InPlayer) -> MemeResult<models::Player> {
-        // Forbidding enterring room if it's already started
+        // Forbidding enterring room if the game already started
         {
             let room = RoomsRepository::new(self.repo.db).get_room(in_player.room_id)?;
             match room.state {

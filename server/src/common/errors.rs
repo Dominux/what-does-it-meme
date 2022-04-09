@@ -13,7 +13,7 @@ pub enum MemeError {
     #[error("State transition not allowed")]
     NotAllowedStateTransition,
 
-    #[error("Enterring a room is impossible once the room start")]
+    #[error("Enterring a room is impossible once the game starts")]
     EnterringRoomAfterStart,
 
     #[error("Players limit is already achieved")]
@@ -32,7 +32,7 @@ impl ResponseError for MemeError {
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::NotAllowedStateTransition => StatusCode::LOCKED,
             Self::EnterringRoomAfterStart => StatusCode::LOCKED,
-            Self::AchivedPlayersLimit => StatusCode::LOCKED,
+            Self::AchivedPlayersLimit => StatusCode::CONFLICT,
             Self::DuplicatedName => StatusCode::CONFLICT,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
