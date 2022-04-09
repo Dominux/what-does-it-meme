@@ -27,6 +27,13 @@ pub struct Config {
 
     #[envconfig(from = "PLAYERS_LIMIT")]
     pub players_limit: i64,
+
+    #[envconfig(from = "ROUNDS_AMOUNT")]
+    pub rounds_amount: u8,
+}
+
+    #[envconfig(from = "PLAYERS_LIMIT")]
+    pub players_limit: i64,
 }
 
 impl Config {

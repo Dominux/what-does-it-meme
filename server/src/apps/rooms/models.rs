@@ -13,7 +13,7 @@ use crate::{
 pub struct Room {
     pub id: uuid::Uuid,
     pub state: RoomState,
-    pub timestamp: Option<SystemTime>,
+    pub timestamp: SystemTime,
 }
 
 impl Room {
@@ -21,8 +21,7 @@ impl Room {
         Self {
             id: uuid::Uuid::new_v4(),
             state: RoomState::NotStarted,
-            // Setting current time
-            timestamp: Some(SystemTime::now()),
+            timestamp: SystemTime::now(),
         }
     }
 
@@ -30,8 +29,7 @@ impl Room {
         match self.state {
             RoomState::NotStarted => Ok({
                 self.state = RoomState::Started;
-                // Setting time to None cause at this state we don't need it
-                self.timestamp = None;
+                self.timestamp = SystemTime::now();
             }),
             _ => Err(MemeError::NotAllowedStateTransition),
         }
@@ -41,8 +39,7 @@ impl Room {
         match self.state {
             RoomState::Started => Ok({
                 self.state = RoomState::Ended;
-                // Setting current time
-                self.timestamp = Some(SystemTime::now());
+                self.timestamp = SystemTime::now();
             }),
             _ => Err(MemeError::NotAllowedStateTransition),
         }

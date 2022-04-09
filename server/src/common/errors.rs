@@ -1,5 +1,6 @@
 use actix_web::{error::BlockingError, http::StatusCode, HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
+use envconfig::Error as EnvconfigError;
 use r2d2::Error as R2d2Error;
 use envconfig::{Error as EnvconfigError};
 use thiserror;
