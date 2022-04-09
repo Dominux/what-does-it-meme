@@ -1,5 +1,7 @@
 use envconfig::Envconfig;
 
+use super::errors::MemeResult;
+
 #[derive(Envconfig)]
 pub struct Config {
     #[envconfig(from = "HOST")]
@@ -12,7 +14,7 @@ pub struct Config {
     pub db_port: u16,
 
     #[envconfig(from = "POSTGRES_USER")]
-    pub db_username: String,
+    pub db_playername: String,
 
     #[envconfig(from = "POSTGRES_PASSWORD")]
     pub db_password: String,
@@ -22,14 +24,20 @@ pub struct Config {
 
     #[envconfig(from = "DB_HOST")]
     pub db_host: String,
+
+    #[envconfig(from = "PLAYERS_LIMIT")]
+    pub players_limit: i64,
 }
 
-
 impl Config {
+    pub fn new() -> MemeResult<Self> {
+        Ok(Self::init_from_env()?)
+    }
+
     pub fn get_db_uri(&self) -> String {
         format!(
-            "postgresql://{username}:{password}@{host}:{port}/{dbname}",
-            username = self.db_username,
+            "postgresql://{playername}:{password}@{host}:{port}/{dbname}",
+            playername = self.db_playername,
             password = self.db_password,
             host = self.db_host,
             port = self.db_port,

@@ -3,33 +3,33 @@ use std::time::SystemTime;
 use serde::{Deserialize, Serialize};
 use uuid;
 
-use super::state_enum::GameState;
+use super::state_enum::RoomState;
 use crate::{
-    apps::games::schema::games,
+    apps::rooms::schema::rooms,
     common::errors::{MemeError, MemeResult},
 };
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, Queryable, Insertable)]
-pub struct Game {
+pub struct Room {
     pub id: uuid::Uuid,
-    pub state: GameState,
+    pub state: RoomState,
     pub timestamp: Option<SystemTime>,
 }
 
-impl Game {
+impl Room {
     pub fn new() -> Self {
         Self {
             id: uuid::Uuid::new_v4(),
-            state: GameState::NotStarted,
+            state: RoomState::NotStarted,
             // Setting current time
             timestamp: Some(SystemTime::now()),
         }
     }
 
-    pub fn start(&mut self) -> MemeResult<()> {
+    pub fn start_game(&mut self) -> MemeResult<()> {
         match self.state {
-            GameState::NotStarted => Ok({
-                self.state = GameState::Started;
+            RoomState::NotStarted => Ok({
+                self.state = RoomState::Started;
                 // Setting time to None cause at this state we don't need it
                 self.timestamp = None;
             }),
@@ -37,10 +37,10 @@ impl Game {
         }
     }
 
-    pub fn end(&mut self) -> MemeResult<()> {
+    pub fn end_game(&mut self) -> MemeResult<()> {
         match self.state {
-            GameState::Started => Ok({
-                self.state = GameState::Ended;
+            RoomState::Started => Ok({
+                self.state = RoomState::Ended;
                 // Setting current time
                 self.timestamp = Some(SystemTime::now());
             }),

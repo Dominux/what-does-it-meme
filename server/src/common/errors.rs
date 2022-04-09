@@ -1,6 +1,7 @@
 use actix_web::{error::BlockingError, http::StatusCode, HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
 use r2d2::Error as R2d2Error;
+use envconfig::{Error as EnvconfigError};
 use thiserror;
 
 /// Generic app error
@@ -12,6 +13,15 @@ pub enum MemeError {
     #[error("State transition not allowed")]
     NotAllowedStateTransition,
 
+    #[error("Enterring a room is impossible once the game starts")]
+    EnterringRoomAfterStart,
+
+    #[error("Players limit is already achieved")]
+    AchivedPlayersLimit,
+
+    #[error("Another player in the room already has this name")]
+    DuplicatedName,
+
     #[error("Unknown")]
     Unknown,
 }
@@ -21,6 +31,9 @@ impl ResponseError for MemeError {
         match self {
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::NotAllowedStateTransition => StatusCode::LOCKED,
+            Self::EnterringRoomAfterStart => StatusCode::LOCKED,
+            Self::AchivedPlayersLimit => StatusCode::CONFLICT,
+            Self::DuplicatedName => StatusCode::CONFLICT,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -50,6 +63,12 @@ impl From<DieselError> for MemeError {
 
 impl From<R2d2Error> for MemeError {
     fn from(_: R2d2Error) -> Self {
+        Self::Unknown
+    }
+}
+
+impl From<EnvconfigError> for MemeError {
+    fn from(_: EnvconfigError) -> Self {
         Self::Unknown
     }
 }
