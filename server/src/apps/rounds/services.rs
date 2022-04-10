@@ -35,23 +35,11 @@ impl<'a> RoundsService<'a> {
         Ok(round)
     }
 
-    // pub fn start_game(&self, id: uuid::Uuid) -> MemeResult<()> {
-    //     let mut room = self.get_room_by_id(id)?;
+    pub fn get_round(&self, uid: uuid::Uuid) -> MemeResult<models::Round> {
+        self.repo.get_round(uid)
+    }
 
-    //     room.start_game()?;
-    //     self.repo.update_room(room)?;
-
-    //     Ok(())
-    // }
-
-    // pub fn end_game(&self, id: uuid::Uuid) -> MemeResult<()> {
-    //     let mut room = self.get_room_by_id(id)?;
-
-    //     room.end_game()?;
-    //     self.repo.update_room(room)?;
-
-    //     println!("{:?}", room);
-
-    //     Ok(())
-    // }
+    pub fn get_rounds_amount(&self, room_id: uuid::Uuid) -> MemeResult<u8> {
+        self.repo.count_rounds(room_id)
+    }
 }

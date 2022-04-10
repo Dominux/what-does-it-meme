@@ -1,3 +1,4 @@
+use diesel::dsl::count_star;
 use diesel::prelude::*;
 use uuid;
 
@@ -31,6 +32,18 @@ impl<'a> RoundsRepository<'a> {
             .optional()?
             .ok_or(MemeError::NotFound)?;
         Ok(round)
+    }
+
+    pub fn count_rounds(&self, _room_id: uuid::Uuid) -> MemeResult<u8> {
+        use crate::apps::rounds::schema::rounds::dsl::*;
+
+        let round: i64 = rounds
+            .select(count_star())
+            .filter(room_id.eq(_room_id))
+            .first(self.db)
+            .optional()?
+            .ok_or(MemeError::NotFound)?;
+        Ok(round as u8)
     }
 
     /// Now we updating only state

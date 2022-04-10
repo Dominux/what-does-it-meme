@@ -3,7 +3,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::{
     apps::{
         players::services::PlayersService,
-        rooms::services::RoomsService,
+        rooms::{services::RoomsService, state_enum::RoomState},
         rounds::{models::Round, services::RoundsService},
     },
     common::{
@@ -12,6 +12,8 @@ use crate::{
         errors::{MemeError, MemeResult},
     },
 };
+
+use super::models::GeneralGameStatus;
 
 /// Main Game runner to manage rooms, rounds and players
 pub struct GameService<'a> {
@@ -62,13 +64,25 @@ impl<'a> GameService<'a> {
         Ok(round)
     }
 
-    fn get_random_player_id(&self, room_id: uuid::Uuid) -> MemeResult<uuid::Uuid> {
-        let player_id = *self
-            .players_service
-            .list_players_ids(room_id)?
-            .choose(&mut thread_rng())
-            .ok_or(MemeError::TooLessPlayers)?;
+    /// Returns general game status
+    pub fn get_general_status(&self, room_id: uuid::Uuid) -> MemeResult<GeneralGameStatus> {
+        let room = self.rooms_service.get_room_by_id(room_id)?;
 
-        Ok(player_id)
+        // Returning 404 if state isn't Started
+        if !matches!(room.state, RoomState::Started) {
+            return Err(MemeError::NotFound);
+        }
+
+        let round_number = self.rounds_service.get_rounds_amount(room_id)?;
+
+        let round = self
+            .rounds_service
+            .get_round(room.current_round_id.ok_or(MemeError::Unknown)?)?;
+
+        Ok(GeneralGameStatus::new(
+            round_number,
+            round.state,
+            room.timestamp,
+        ))
     }
 }
