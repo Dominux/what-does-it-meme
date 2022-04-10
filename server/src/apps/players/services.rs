@@ -47,6 +47,10 @@ impl<'a> PlayersService<'a> {
         self.repo.create(in_player)
     }
 
+    pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
+        self.repo.list_players_ids(room_id)
+    }
+
     pub fn get_player_by_id(&self, id: uuid::Uuid) -> MemeResult<models::Player> {
         self.repo.get_player(id)
     }

@@ -13,6 +13,7 @@ use crate::{
 pub struct Room {
     pub id: uuid::Uuid,
     pub state: RoomState,
+    pub current_round_id: Option<uuid::Uuid>,
     pub timestamp: SystemTime,
 }
 
@@ -21,6 +22,7 @@ impl Room {
         Self {
             id: uuid::Uuid::new_v4(),
             state: RoomState::NotStarted,
+            current_round_id: None,
             timestamp: SystemTime::now(),
         }
     }

@@ -22,23 +22,27 @@ impl<'a> RoomsService<'a> {
         self.repo.get_room(id)
     }
 
-    pub fn start_game(&self, id: uuid::Uuid) -> MemeResult<()> {
-        let mut room = self.get_room_by_id(id)?;
-
-        room.start_game()?;
-        self.repo.update_room(room)?;
-
-        Ok(())
+    pub fn update_game(&self, room: models::Room) -> MemeResult<()> {
+        self.repo.update_room(room)
     }
 
-    pub fn end_game(&self, id: uuid::Uuid) -> MemeResult<()> {
-        let mut room = self.get_room_by_id(id)?;
+    // pub fn start_game(&self, id: uuid::Uuid) -> MemeResult<()> {
+    //     let mut room = self.get_room_by_id(id)?;
 
-        room.end_game()?;
-        self.repo.update_room(room)?;
+    //     room.start_game()?;
+    //     self.repo.update_room(room)?;
 
-        println!("{:?}", room);
+    //     Ok(())
+    // }
 
-        Ok(())
-    }
+    // pub fn end_game(&self, id: uuid::Uuid) -> MemeResult<()> {
+    //     let mut room = self.get_room_by_id(id)?;
+
+    //     room.end_game()?;
+    //     self.repo.update_room(room)?;
+
+    //     println!("{:?}", room);
+
+    //     Ok(())
+    // }
 }

@@ -4,6 +4,7 @@ CREATE TABLE rooms (
     id UUID PRIMARY KEY NOT NULL,
     -- state RoomState NOT NULL DEFAULT 'not_started',
     state VARCHAR(16) NOT NULL DEFAULT 'not_started',
+    current_round_id UUID REFERENCES rounds(id),
     timestamp TIMESTAMP NOT NULL
 );
 
@@ -16,9 +17,8 @@ CREATE TABLE players (
 CREATE TABLE rounds (
     id UUID PRIMARY KEY NOT NULL,
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-    number SMALLINT NOT NULL DEFAULT 1,
     state VARCHAR(64) NOT NULL DEFAULT 'situation_creation',
     situation VARCHAR(255),
-    situation_creater_id UUID NOT NULL REFERENCES players(id),
+    situation_creator_id UUID NOT NULL REFERENCES players(id),
 );
 

@@ -25,6 +25,18 @@ impl<'a> PlayersRepository<'a> {
         Ok(player)
     }
 
+    pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
+        use crate::apps::players::schema::players::dsl::*;
+
+        let players_ids = players
+            .select(id)
+            .filter(room_id.eq(room_id))
+            .load::<uuid::Uuid>(self.db)
+            .optional()?
+            .ok_or(MemeError::NotFound)?;
+        Ok(players_ids)
+    }
+
     pub fn get_player(&self, uid: uuid::Uuid) -> MemeResult<models::Player> {
         use crate::apps::players::schema::players::dsl::*;
 

@@ -25,15 +25,14 @@ pub struct Config {
     #[envconfig(from = "DB_HOST")]
     pub db_host: String,
 
+    #[envconfig(from = "PLAYERS_MINIMUM")]
+    pub players_minimum: u8,
+
     #[envconfig(from = "PLAYERS_LIMIT")]
     pub players_limit: i64,
 
     #[envconfig(from = "ROUNDS_AMOUNT")]
     pub rounds_amount: u8,
-}
-
-    #[envconfig(from = "PLAYERS_LIMIT")]
-    pub players_limit: i64,
 }
 
 impl Config {

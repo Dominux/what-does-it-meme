@@ -2,7 +2,6 @@ use actix_web::{error::BlockingError, http::StatusCode, HttpResponse, ResponseEr
 use diesel::result::Error as DieselError;
 use envconfig::Error as EnvconfigError;
 use r2d2::Error as R2d2Error;
-use envconfig::{Error as EnvconfigError};
 use thiserror;
 
 /// Generic app error
@@ -20,6 +19,9 @@ pub enum MemeError {
     #[error("Players limit is already achieved")]
     AchivedPlayersLimit,
 
+    #[error("At least three players needed")]
+    TooLessPlayers,
+
     #[error("Another player in the room already has this name")]
     DuplicatedName,
 
@@ -34,6 +36,7 @@ impl ResponseError for MemeError {
             Self::NotAllowedStateTransition => StatusCode::LOCKED,
             Self::EnterringRoomAfterStart => StatusCode::LOCKED,
             Self::AchivedPlayersLimit => StatusCode::CONFLICT,
+            Self::TooLessPlayers => StatusCode::LOCKED,
             Self::DuplicatedName => StatusCode::CONFLICT,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }

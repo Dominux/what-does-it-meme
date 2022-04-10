@@ -15,6 +15,7 @@ pub enum RoundState {
     SituationCreation,
     ChoosingMemes,
     Voting,
+    Ended,
 }
 
 impl ToSql<Text, Pg> for RoundState {
@@ -26,6 +27,7 @@ impl ToSql<Text, Pg> for RoundState {
             RoundState::SituationCreation => out.write_all(b"situation_creation")?,
             RoundState::ChoosingMemes => out.write_all(b"choosing_memes")?,
             RoundState::Voting => out.write_all(b"voting")?,
+            RoundState::Ended => out.write_all(b"ended")?,
         }
 
         Ok(IsNull::No)
@@ -40,6 +42,7 @@ impl FromSql<Text, Pg> for RoundState {
             b"situation_creation" => Ok(RoundState::SituationCreation),
             b"choosing_memes" => Ok(RoundState::ChoosingMemes),
             b"voting" => Ok(RoundState::Voting),
+            b"ended" => Ok(RoundState::Ended),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

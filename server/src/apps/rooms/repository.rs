@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use diesel::prelude::*;
 use uuid;
 
@@ -38,9 +40,33 @@ impl<'a> RoomsRepository<'a> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 
         diesel::update(rooms.filter(id.eq(room.id)))
-            .set((state.eq(room.state), timestamp.eq(room.timestamp)))
+            .set((
+                state.eq(room.state),
+                current_round_id.eq(room.current_round_id),
+                timestamp.eq(room.timestamp),
+            ))
             .execute(self.db)?;
 
         Ok(())
     }
+
+    ////////////////////////////////////////////
+    //  Timestamp getting/setting
+    ////////////////////////////////////////////
+
+    pub fn get_timestamp(&self, room_id: uuid::Uuid) -> MemeResult<SystemTime> {
+        use crate::apps::rooms::schema::rooms::dsl::*;
+
+        let _timestamp = rooms
+            .select(timestamp)
+            .filter(id.eq(room_id))
+            .first::<SystemTime>(self.db)
+            .optional()?
+            .ok_or(MemeError::NotFound)?;
+        Ok(_timestamp)
+    }
+
+    ////////////////////////////////////////////
+    //  Current round getting/setting
+    ////////////////////////////////////////////
 }

@@ -1275,6 +1275,7 @@ dependencies = [
  "envconfig",
  "lazy_static",
  "r2d2",
+ "rand",
  "serde",
  "serde_json",
  "thiserror",
