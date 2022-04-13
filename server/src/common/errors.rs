@@ -25,6 +25,9 @@ pub enum MemeError {
     #[error("Another player in the room already has this name")]
     DuplicatedName,
 
+    #[error("You can't create situation at this round stage")]
+    InvalidStateToCreateSituation,
+
     #[error("Unknown")]
     Unknown,
 }
@@ -38,6 +41,7 @@ impl ResponseError for MemeError {
             Self::AchivedPlayersLimit => StatusCode::CONFLICT,
             Self::TooLessPlayers => StatusCode::LOCKED,
             Self::DuplicatedName => StatusCode::CONFLICT,
+            Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

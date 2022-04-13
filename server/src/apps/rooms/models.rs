@@ -9,7 +9,7 @@ use crate::{
     common::errors::{MemeError, MemeResult},
 };
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Identifiable, Queryable, Insertable)]
 pub struct Room {
     pub id: uuid::Uuid,
     pub state: RoomState,

@@ -64,6 +64,15 @@ impl<'a> GameService<'a> {
         Ok(round)
     }
 
+    /// Method to create a situation
+    pub fn create_situation(&self, situation_creator_id: uuid::Uuid, situation: String) -> MemeResult<()> {
+        self.rounds_service.create_situation(situation_creator_id, situation)
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    /// Statuses
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     /// Returns general game status
     pub fn get_general_status(&self, room_id: uuid::Uuid) -> MemeResult<GeneralGameStatus> {
         let room = self.rooms_service.get_room_by_id(room_id)?;

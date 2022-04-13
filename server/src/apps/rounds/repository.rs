@@ -34,6 +34,20 @@ impl<'a> RoundsRepository<'a> {
         Ok(round)
     }
 
+    pub fn get_round_by_situation_creator_id(
+        &self,
+        situation_creator_id: uuid::Uuid,
+    ) -> MemeResult<models::Round> {
+        use crate::apps::rounds::schema::rounds;
+
+        let round = rounds::table
+            .filter(rounds::columns::situation_creator_id.eq(situation_creator_id))
+            .first::<models::Round>(self.db)
+            .optional()?
+            .ok_or(MemeError::NotFound)?;
+        Ok(round)
+    }
+
     pub fn count_rounds(&self, _room_id: uuid::Uuid) -> MemeResult<u8> {
         use crate::apps::rounds::schema::rounds::dsl::*;
 
@@ -47,11 +61,11 @@ impl<'a> RoundsRepository<'a> {
     }
 
     /// Now we updating only state
-    pub fn update_round(&self, room: models::Round) -> MemeResult<()> {
+    pub fn update_round(&self, round: models::Round) -> MemeResult<()> {
         use crate::apps::rounds::schema::rounds::dsl::*;
 
-        diesel::update(rounds.filter(id.eq(room.id)))
-            .set(state.eq(room.state))
+        diesel::update(rounds.filter(id.eq(round.id)))
+            .set((state.eq(round.state), situation.eq(round.situation)))
             .execute(self.db)?;
 
         Ok(())

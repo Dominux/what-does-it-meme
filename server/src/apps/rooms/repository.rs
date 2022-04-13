@@ -36,6 +36,29 @@ impl<'a> RoomsRepository<'a> {
         Ok(room)
     }
 
+    // pub fn get_room_by_player_id(&self, player_id: uuid::Uuid) -> MemeResult<models::Room> {
+    //     use crate::apps::players::schema::players;
+    //     use crate::apps::rooms::schema::rooms;
+
+    //     let rooms_table = rooms::table;
+    //     let players_table = players::table;
+
+    //     allow_tables_to_appear_in_same_query!(rooms, players);
+
+    //     let room = rooms_table
+    //         .inner_join(players_table.on(players::dsl::id.eq(player_id)))
+    //         .select((
+    //             rooms::columns::id,
+    //             rooms::columns::state,
+    //             rooms::columns::current_round_id,
+    //             rooms::columns::timestamp,
+    //         ))
+    //         .first::<models::Room>(self.db)
+    //         .optional()?
+    //         .ok_or(MemeError::NotFound)?;
+    //     Ok(room)
+    // }
+
     pub fn update_room(&self, room: models::Room) -> MemeResult<()> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 

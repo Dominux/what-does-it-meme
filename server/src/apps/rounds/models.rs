@@ -3,11 +3,15 @@ use uuid;
 
 use super::state_enum::RoundState;
 use crate::{
+    apps::rooms::models::Room,
     apps::rounds::schema::rounds,
     common::errors::{MemeError, MemeResult},
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(
+    Debug, Clone, Serialize, Deserialize, Identifiable, Queryable, Insertable, Associations,
+)]
+#[belongs_to(Room)]
 pub struct Round {
     pub id: uuid::Uuid,
     pub room_id: uuid::Uuid,
