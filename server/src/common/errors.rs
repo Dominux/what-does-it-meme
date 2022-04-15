@@ -2,6 +2,7 @@ use actix_web::{error::BlockingError, http::StatusCode, HttpResponse, ResponseEr
 use diesel::result::Error as DieselError;
 use envconfig::Error as EnvconfigError;
 use r2d2::Error as R2d2Error;
+use reqwest::Error as ReqwestError;
 use thiserror;
 
 /// Generic app error
@@ -82,6 +83,12 @@ impl From<R2d2Error> for MemeError {
 impl From<EnvconfigError> for MemeError {
     fn from(_: EnvconfigError) -> Self {
         Self::Unknown
+    }
+}
+
+impl From<ReqwestError> for MemeError {
+    fn from(_: ReqwestError) -> Self {
+        Self::MemesScrapingError
     }
 }
 
