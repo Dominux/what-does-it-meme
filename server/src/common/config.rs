@@ -33,6 +33,12 @@ pub struct Config {
 
     #[envconfig(from = "ROUNDS_AMOUNT")]
     pub rounds_amount: u8,
+
+    #[envconfig(from = "KNOW_YOUR_MEME_BASEURL")]
+    pub know_your_meme_baseurl: String,
+
+    #[envconfig(from = "KNOW_YOUR_MEME_PAGES")]
+    pub know_your_meme_pages: u16,
 }
 
 impl Config {

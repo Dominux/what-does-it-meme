@@ -28,6 +28,9 @@ pub enum MemeError {
     #[error("You can't create situation at this round stage")]
     InvalidStateToCreateSituation,
 
+    #[error("Memes scrapping error")]
+    MemesScrapingError,
+
     #[error("Unknown")]
     Unknown,
 }
@@ -42,6 +45,7 @@ impl ResponseError for MemeError {
             Self::TooLessPlayers => StatusCode::LOCKED,
             Self::DuplicatedName => StatusCode::CONFLICT,
             Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
+            Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

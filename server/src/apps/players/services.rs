@@ -45,6 +45,8 @@ impl<'a> PlayersService<'a> {
         }
 
         self.repo.create(in_player)
+
+        // Get memes for him and give them to him
     }
 
     pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {

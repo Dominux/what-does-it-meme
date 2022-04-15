@@ -43,3 +43,10 @@ impl From<InPlayer> for Player {
         Self::new(in_player.name, in_player.room_id)
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub memes_in_hands: Vec<String>,
+}
+
+// use https://knowyourmeme.com/memes/popular/page/500
