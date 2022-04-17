@@ -27,6 +27,7 @@ scraper = "0.12.0"
 
 thiserror = "1.0.30"
 rand = "0.8.5"
+itertools = "0.10.3"
 
 [dev-dependencies]
 lazy_static = "1.4.0"

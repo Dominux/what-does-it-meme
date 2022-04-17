@@ -2,9 +2,9 @@ use actix_web::{get, http::StatusCode, post, web, HttpResponse};
 use uuid::Uuid;
 
 use crate::{
-    apps::players::models::{Claims, InPlayer, PlayerWithMemes},
+    apps::players::models::{AddPlayerResponseJson, Claims, InPlayer, PlayerWithMemes},
     apps::{memes::services::MemesService, players::services::PlayersService},
-    common::{db::DBPool, errors::MemeResult},
+    common::{config::Config, db::DBPool, errors::MemeResult, jwt_service::JWTService},
 };
 
 #[post("")]
@@ -20,14 +20,22 @@ async fn add_player(
 
     // Creating memes for him
     let memes = MemesService::get_random_memes().await?;
-    let player_with_memes = PlayerWithMemes::new(player, memes);
+    let player_with_memes = PlayerWithMemes::new(player, memes.clone());
 
-    // Creating jwt token
-    // TODO: implement mechanism to put all the player's memes inside jwt token and then check them everytime he tries to use one of them
+    let response_json = {
+        // Creating jwt token
+        let claims = Claims::new(memes);
+        let token = JWTService::new(Config::new()?.secret.as_str()).encode(&claims)?;
+
+        AddPlayerResponseJson {
+            player_with_memes,
+            token,
+        }
+    };
 
     Ok(HttpResponse::Ok()
         .status(StatusCode::CREATED)
-        .json(player_with_memes))
+        .json(response_json))
 }
 
 #[get("/{id}")]

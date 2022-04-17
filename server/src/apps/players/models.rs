@@ -49,6 +49,12 @@ pub struct Claims {
     pub memes_in_hands: Vec<String>,
 }
 
+impl Claims {
+    pub fn new(memes_in_hands: Vec<String>) -> Self {
+        Self { memes_in_hands }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlayerWithMemes {
     pub id: uuid::Uuid,
@@ -66,4 +72,10 @@ impl PlayerWithMemes {
             memes_in_hands,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AddPlayerResponseJson {
+    pub player_with_memes: PlayerWithMemes,
+    pub token: String,
 }

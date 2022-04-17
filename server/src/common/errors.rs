@@ -32,6 +32,12 @@ pub enum MemeError {
     #[error("Memes scrapping error")]
     MemesScrapingError,
 
+    #[error("JWT error")]
+    JWTError,
+
+    #[error("Invalid token")]
+    InvalidToken,
+
     #[error("Unknown")]
     Unknown,
 }
@@ -47,6 +53,8 @@ impl ResponseError for MemeError {
             Self::DuplicatedName => StatusCode::CONFLICT,
             Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
             Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::JWTError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::InvalidToken => StatusCode::UNAUTHORIZED,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

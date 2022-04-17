@@ -10,6 +10,9 @@ pub struct Config {
     #[envconfig(from = "PORT")]
     pub port: u16,
 
+    #[envconfig(from = "SECRET")]
+    pub secret: String,
+
     #[envconfig(from = "PGPORT")]
     pub db_port: u16,
 
