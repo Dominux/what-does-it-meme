@@ -1,8 +1,8 @@
 use super::models::InPlayer;
 use super::repository::PlayersRepository;
+use crate::apps::players::models;
 use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rooms::state_enum::RoomState;
-use crate::apps::players::models;
 use crate::common::config::Config;
 use crate::common::db::DBConnection;
 use crate::common::errors::{MemeError, MemeResult};
@@ -33,20 +33,18 @@ impl<'a> PlayersService<'a> {
 
             // Forbidding enterring room if players limit was already achieved
             if players.len() as i64 == Config::new()?.players_limit {
-                return Err(MemeError::AchivedPlayersLimit)
+                return Err(MemeError::AchivedPlayersLimit);
             }
-            
+
             // Forbidding enterring room if player's desired name already there is in the room
             for player in players {
                 if player.name == in_player.name {
-                    return Err(MemeError::DuplicatedName)
+                    return Err(MemeError::DuplicatedName);
                 }
             }
         }
 
         self.repo.create(in_player)
-
-        // Get memes for him and give them to him
     }
 
     pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {

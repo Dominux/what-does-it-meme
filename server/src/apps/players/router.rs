@@ -2,8 +2,8 @@ use actix_web::{get, http::StatusCode, post, web, HttpResponse};
 use uuid::Uuid;
 
 use crate::{
-    apps::players::models::InPlayer,
-    apps::players::services::PlayersService,
+    apps::players::models::{Claims, InPlayer, PlayerWithMemes},
+    apps::{memes::services::MemesService, players::services::PlayersService},
     common::{db::DBPool, errors::MemeResult},
 };
 
@@ -14,8 +14,20 @@ async fn add_player(
 ) -> MemeResult<HttpResponse> {
     let player = in_player.to_owned();
     let db = db_pool.get()?;
+
+    // Adding player
     let player = web::block(move || PlayersService::new(&db).add_player(player)).await??;
-    Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(player))
+
+    // Creating memes for him
+    let memes = MemesService::get_random_memes().await?;
+    let player_with_memes = PlayerWithMemes::new(player, memes);
+
+    // Creating jwt token
+    // TODO: implement mechanism to put all the player's memes inside jwt token and then check them everytime he tries to use one of them
+
+    Ok(HttpResponse::Ok()
+        .status(StatusCode::CREATED)
+        .json(player_with_memes))
 }
 
 #[get("/{id}")]

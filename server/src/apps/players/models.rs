@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use uuid;
 
-use crate::apps::rooms::models::Room;
 use crate::apps::players::schema::players;
+use crate::apps::rooms::models::Room;
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct InPlayer {
@@ -49,4 +49,21 @@ pub struct Claims {
     pub memes_in_hands: Vec<String>,
 }
 
-// use https://knowyourmeme.com/memes/popular/page/500
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PlayerWithMemes {
+    pub id: uuid::Uuid,
+    pub name: String,
+    pub room_id: uuid::Uuid,
+    pub memes_in_hands: Vec<String>,
+}
+
+impl PlayerWithMemes {
+    pub fn new(player: Player, memes_in_hands: Vec<String>) -> Self {
+        Self {
+            id: player.id,
+            name: player.name,
+            room_id: player.room_id,
+            memes_in_hands,
+        }
+    }
+}
