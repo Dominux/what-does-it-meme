@@ -32,19 +32,37 @@ impl KnowYourMemeScraper {
 
         // Getting memes page
         let url = format!("{}{}", self.config.know_your_meme_pageurl, random_page);
-        let response_text = self.client.get(url).send().await?.text().await?;
+        let response_text = self
+            .client
+            .get(&url)
+            .header("User-Agent", "ur mom")
+            .send()
+            .await?
+            .error_for_status()?
+            .text()
+            .await?;
 
         // Parsing it
         let selector = Selector::parse(PAGE_SELECTOR).map_err(|_| MemeError::MemesScrapingError)?;
         let raw_links = Html::parse_document(response_text.as_str())
             .select(&selector)
+            // TODO: raw links are relative, create absolute ones from them
             .filter_map(|a| a.value().attr("href").map(|l| l.to_string()))
             .collect();
+
         Ok(raw_links)
     }
 
     async fn get_meme_by_raw_link(&self, raw_link: String) -> MemeResult<String> {
-        let response_text = self.client.get(raw_link).send().await?.text().await?;
+        let response_text = self
+            .client
+            .get(raw_link)
+            .header("User-Agent", "ur mom")
+            .send()
+            .await?
+            .error_for_status()?
+            .text()
+            .await?;
 
         let selector = Selector::parse(MEME_SELECTOR).map_err(|_| MemeError::MemesScrapingError)?;
         let meme_link = Html::parse_document(response_text.as_str())

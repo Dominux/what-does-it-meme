@@ -3,10 +3,12 @@ use envconfig::Envconfig;
 use lazy_static::lazy_static;
 use serde_json::json;
 
+use crate::apps::games::services::GameService;
 use crate::apps::players::models::{self, InPlayer};
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::services::RoomsService;
+use crate::common::jwt_service::JWTService;
 use crate::common::{
     config::Config,
     db::{get_dbpool, DBPool},
@@ -22,7 +24,7 @@ lazy_static! {
 }
 
 #[actix_web::test]
-async fn test_players_crud() {
+async fn test_add_player() {
     // Creating the app
     let app = App::new()
         .app_data(web::Data::new(DB_POOL.clone()))
@@ -53,9 +55,21 @@ async fn test_players_crud() {
 
             assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
 
-            let player: models::Player = test::read_body_json(response).await;
-            assert_eq!(player.name, in_player["name"]);
-            assert_eq!(player.room_id, room.id);
+            let player: models::AddPlayerResponseJson = test::read_body_json(response).await;
+            assert_eq!(player.player_with_memes.name, in_player["name"]);
+            assert_eq!(player.player_with_memes.id, room.id);
+
+            // Checking if memes are right
+            let secret = Config::new().expect("some error with config init").secret;
+            let jwt_service = JWTService::new(secret.as_str());
+            let memes_in_hand_from_token = jwt_service
+                .decode::<models::Claims>(player.token.as_str())
+                .expect("token decoding error")
+                .memes_in_hands;
+            assert_eq!(
+                player.player_with_memes.memes_in_hands,
+                memes_in_hand_from_token
+            );
         };
 
         // 2. Trying to add more then limit players
@@ -121,12 +135,14 @@ async fn test_players_crud() {
 
     // 4. Trying to add player if the room already started game or after ended the game
     {
-        let rooms_service = RoomsService::new(db);
         // Creating room
-        let room = rooms_service.create_room().expect("Can't create room");
+        let game_service = GameService::new(db);
+        let room = RoomsService::new(db)
+            .create_room()
+            .expect("Can't create room");
 
         // Starting game
-        rooms_service
+        game_service
             .start_game(room.id)
             .expect("Can't start the game");
 
@@ -144,9 +160,7 @@ async fn test_players_crud() {
         assert_eq!(response.status(), 423, "Sht, status should be 423 nibba");
 
         // Encding game
-        rooms_service
-            .end_game(room.id)
-            .expect("Can't end the game");
+        game_service.end_game(room.id).expect("Can't end the game");
 
         // Trying to create a player
         let in_player = json!({

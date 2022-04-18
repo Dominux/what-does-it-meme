@@ -65,8 +65,27 @@ impl<'a> GameService<'a> {
     }
 
     /// Method to create a situation
-    pub fn create_situation(&self, situation_creator_id: uuid::Uuid, situation: String) -> MemeResult<()> {
-        self.rounds_service.create_situation(situation_creator_id, situation)
+    pub fn create_situation(
+        &self,
+        situation_creator_id: uuid::Uuid,
+        situation: String,
+    ) -> MemeResult<()> {
+        self.rounds_service
+            .create_situation(situation_creator_id, situation)
+    }
+
+    /// Ending the game and return first round
+    pub fn end_game(&self, room_id: uuid::Uuid) -> MemeResult<()> {
+        // Getting the room
+        let mut room = self.rooms_service.get_room_by_id(room_id)?;
+
+        // TODO: add logic
+
+        // Ending
+        room.end_game()?;
+        self.rooms_service.update_game(room)?;
+
+        Ok(())
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

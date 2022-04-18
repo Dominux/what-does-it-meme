@@ -2,7 +2,13 @@ FROM rust:1.59
 
 WORKDIR /app
 
-COPY ./server .
+# Creating dummy main.rs file
+RUN mkdir ./src
+RUN echo "fn main(){}" > ./src/main.rs
 
-# RUN cargo install --path .
-# RUN cargo build
+# Copying deps and downloading and pre-building them
+COPY ./server/Cargo.toml .
+RUN cargo build --tests
+
+# Copying all the logic
+COPY ./server .

@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   server:
     build:
       dockerfile: test.Dockerfile
@@ -24,4 +23,3 @@ services:
       - ${PGPORT}:${PGPORT}
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-
