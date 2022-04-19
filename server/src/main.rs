@@ -3,7 +3,6 @@ extern crate diesel;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use envconfig::Envconfig;
 
 use apps::games::router::register_router as games_router;
 use apps::players::router::register_router as players_router;

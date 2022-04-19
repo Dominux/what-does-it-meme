@@ -57,7 +57,7 @@ async fn test_add_player() {
 
             let player: models::AddPlayerResponseJson = test::read_body_json(response).await;
             assert_eq!(player.player_with_memes.name, in_player["name"]);
-            assert_eq!(player.player_with_memes.id, room.id);
+            assert_eq!(player.player_with_memes.room_id, room.id);
 
             // Checking if memes are right
             let secret = Config::new().expect("some error with config init").secret;

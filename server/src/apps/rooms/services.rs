@@ -1,7 +1,7 @@
 use super::repository::RoomsRepository;
 use crate::apps::rooms::models;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeResult, MemeError};
+use crate::common::errors::MemeResult;
 
 pub struct RoomsService<'a> {
     repo: RoomsRepository<'a>,

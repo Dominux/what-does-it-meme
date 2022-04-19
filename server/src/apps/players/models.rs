@@ -47,11 +47,19 @@ impl From<InPlayer> for Player {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub memes_in_hands: Vec<String>,
+
+    // Fields below are required to use with jsonwebtoken
+    pub sub: String,
+    pub exp: usize,
 }
 
 impl Claims {
     pub fn new(memes_in_hands: Vec<String>) -> Self {
-        Self { memes_in_hands }
+        Self {
+            memes_in_hands,
+            sub: String::new(),
+            exp: 0,
+        }
     }
 }
 

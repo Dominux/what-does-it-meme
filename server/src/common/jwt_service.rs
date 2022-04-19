@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{de::DeserializeOwned, Serialize};
 
 use super::errors::{MemeError, MemeResult};
@@ -8,7 +8,6 @@ pub struct JWTService<'a> {
     secret: &'a [u8],
 }
 
-const ALGORITHM: Algorithm = Algorithm::EdDSA;
 const TOKEN_TYPE: &str = "Bearer";
 
 impl<'a> JWTService<'a> {
@@ -21,11 +20,11 @@ impl<'a> JWTService<'a> {
     #[inline]
     pub fn encode<'b, T: Serialize>(&self, claims: &'b T) -> MemeResult<String> {
         let token = encode(
-            &Header::new(ALGORITHM),
+            &Header::default(),
             claims,
             &EncodingKey::from_secret(self.secret),
         )
-        .map_err(|e| MemeError::JWTError)?;
+        .map_err(|_| MemeError::JWTError)?;
 
         Ok(format!("{} {}", TOKEN_TYPE, token))
     }
@@ -34,10 +33,13 @@ impl<'a> JWTService<'a> {
         // Firstable splitting token onto it's type and token itself, validating type
         let token = self.parse_token(token.to_string())?;
 
+        let mut validation = Validation::default();
+        validation.validate_exp = false;
+
         let tokendata = decode(
             token.as_str(),
             &DecodingKey::from_secret(self.secret),
-            &Validation::new(ALGORITHM),
+            &validation,
         );
         match tokendata {
             Ok(tokendata) => Ok(tokendata.claims),

@@ -16,7 +16,7 @@ pub struct KnowYourMemeScraper {
 }
 
 const PAGE_SELECTOR: &str = "td > a.photo";
-const MEME_SELECTOR: &str = "a.photo > img.wide";
+const MEME_SELECTOR: &str = "div.photo-wrapper > a.photo";
 
 impl KnowYourMemeScraper {
     pub fn new() -> Self {
@@ -31,7 +31,12 @@ impl KnowYourMemeScraper {
         let random_page = rand::thread_rng().gen_range(1..self.config.know_your_meme_pages);
 
         // Getting memes page
-        let url = format!("{}{}", self.config.know_your_meme_pageurl, random_page);
+        let url = format!(
+            "{}{}{}",
+            self.config.know_your_meme_baseurl,
+            self.config.know_your_meme_pageurl_relative,
+            random_page
+        );
         let response_text = self
             .client
             .get(&url)
@@ -46,8 +51,11 @@ impl KnowYourMemeScraper {
         let selector = Selector::parse(PAGE_SELECTOR).map_err(|_| MemeError::MemesScrapingError)?;
         let raw_links = Html::parse_document(response_text.as_str())
             .select(&selector)
-            // TODO: raw links are relative, create absolute ones from them
-            .filter_map(|a| a.value().attr("href").map(|l| l.to_string()))
+            .filter_map(|a| {
+                a.value()
+                    .attr("href")
+                    .map(|l| self.config.know_your_meme_baseurl.to_owned() + l)
+            })
             .collect();
 
         Ok(raw_links)
@@ -67,7 +75,7 @@ impl KnowYourMemeScraper {
         let selector = Selector::parse(MEME_SELECTOR).map_err(|_| MemeError::MemesScrapingError)?;
         let meme_link = Html::parse_document(response_text.as_str())
             .select(&selector)
-            .filter_map(|img| img.value().attr("src").map(|l| l.to_string()))
+            .filter_map(|img| img.value().attr("href").map(|l| l.to_string()))
             .next()
             .ok_or(MemeError::MemesScrapingError)?;
         Ok(meme_link)
