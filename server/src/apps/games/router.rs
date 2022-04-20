@@ -57,5 +57,10 @@ async fn get_general_status(
 }
 
 pub fn register_router(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("").service(start_game));
+    cfg.service(
+        web::scope("")
+            .service(start_game)
+            .service(create_situation)
+            .service(get_general_status),
+    );
 }
