@@ -3,7 +3,7 @@ use serde::Deserialize;
 use uuid;
 
 use crate::{
-    apps::games::services::GameService,
+    apps::{games::services::GameService, rounds::models},
     common::{db::DBPool, errors::MemeResult},
 };
 
@@ -15,7 +15,9 @@ async fn start_game(
     let db = db_pool.get()?;
     let round =
         web::block(move || GameService::new(&db).start_game(room_id.into_inner())).await??;
-    Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(round))
+    Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(
+        models::OutRound::from(round), // Players must not know ids of others, it's a private data
+    ))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

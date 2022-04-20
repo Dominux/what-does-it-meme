@@ -52,3 +52,22 @@ impl Round {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OutRound {
+    pub id: uuid::Uuid,
+    pub room_id: uuid::Uuid,
+    pub state: RoundState,
+    pub situation: Option<String>,
+}
+
+impl From<Round> for OutRound {
+    fn from(r: Round) -> Self {
+        OutRound {
+            id: r.id,
+            room_id: r.room_id,
+            state: r.state,
+            situation: r.situation,
+        }
+    }
+}
