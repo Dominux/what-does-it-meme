@@ -3,6 +3,6 @@ table! {
         id -> Uuid,
         state -> Text,
         current_round_id -> Nullable<Uuid>,
-        timestamp -> Timestamp,
+        expiration_timestamp -> Timestamp,
     }
 }

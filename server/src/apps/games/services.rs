@@ -2,9 +2,10 @@ use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     apps::{
+        memes::services::MemesService,
         players::services::PlayersService,
         rooms::{services::RoomsService, state_enum::RoomState},
-        rounds::{models::Round, services::RoundsService}, memes::services::MemesService,
+        rounds::{models::Round, services::RoundsService},
     },
     common::{
         config::Config,
@@ -20,7 +21,7 @@ pub struct GameService<'a> {
     rooms_service: RoomsService<'a>,
     rounds_service: RoundsService<'a>,
     players_service: PlayersService<'a>,
-    memes_service: MemesService<'a>
+    memes_service: MemesService<'a>,
 }
 
 impl<'a> GameService<'a> {
@@ -112,7 +113,7 @@ impl<'a> GameService<'a> {
         Ok(GeneralGameStatus::new(
             round_number,
             round.state,
-            room.timestamp,
+            room.expiration_timestamp,
         ))
     }
 }

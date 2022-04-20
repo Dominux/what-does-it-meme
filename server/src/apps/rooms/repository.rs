@@ -51,7 +51,7 @@ impl<'a> RoomsRepository<'a> {
     //             rooms::columns::id,
     //             rooms::columns::state,
     //             rooms::columns::current_round_id,
-    //             rooms::columns::timestamp,
+    //             rooms::columns::expiration_timestamp,
     //         ))
     //         .first::<models::Room>(self.db)
     //         .optional()?
@@ -66,7 +66,7 @@ impl<'a> RoomsRepository<'a> {
             .set((
                 state.eq(room.state),
                 current_round_id.eq(room.current_round_id),
-                timestamp.eq(room.timestamp),
+                expiration_timestamp.eq(room.expiration_timestamp),
             ))
             .execute(self.db)?;
 
@@ -77,16 +77,16 @@ impl<'a> RoomsRepository<'a> {
     //  Timestamp getting/setting
     ////////////////////////////////////////////
 
-    pub fn get_timestamp(&self, room_id: uuid::Uuid) -> MemeResult<SystemTime> {
+    pub fn get_expiration_timestamp(&self, room_id: uuid::Uuid) -> MemeResult<SystemTime> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 
-        let _timestamp = rooms
-            .select(timestamp)
+        let _expiration_timestamp = rooms
+            .select(expiration_timestamp)
             .filter(id.eq(room_id))
             .first::<SystemTime>(self.db)
             .optional()?
             .ok_or(MemeError::NotFound)?;
-        Ok(_timestamp)
+        Ok(_expiration_timestamp)
     }
 
     ////////////////////////////////////////////

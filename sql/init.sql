@@ -5,7 +5,7 @@ CREATE TABLE rooms (
     -- state RoomState NOT NULL DEFAULT 'not_started',
     state VARCHAR(16) NOT NULL DEFAULT 'not_started',
     current_round_id UUID,
-    timestamp TIMESTAMP NOT NULL
+    expiration_timestamp TIMESTAMP NOT NULL
 );
 
 CREATE TABLE players (

@@ -8,15 +8,19 @@ use crate::apps::rounds::state_enum::RoundState;
 pub struct GeneralGameStatus {
     pub round_number: u8,
     pub round_state: RoundState,
-    pub timestamp: SystemTime,
+    pub expiration_timestamp: SystemTime,
 }
 
 impl GeneralGameStatus {
-    pub fn new(round_number: u8, round_state: RoundState, timestamp: SystemTime) -> Self {
+    pub fn new(
+        round_number: u8,
+        round_state: RoundState,
+        expiration_timestamp: SystemTime,
+    ) -> Self {
         Self {
             round_number,
             round_state,
-            timestamp,
+            expiration_timestamp,
         }
     }
 }

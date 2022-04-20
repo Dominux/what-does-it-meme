@@ -14,8 +14,10 @@ pub struct Room {
     pub id: uuid::Uuid,
     pub state: RoomState,
     pub current_round_id: Option<uuid::Uuid>,
-    pub timestamp: SystemTime,
+    pub expiration_timestamp: SystemTime,
 }
+
+// TODO: save not current expiration_timestamp, but expiration one!!!
 
 impl Room {
     pub fn new() -> Self {
@@ -23,7 +25,7 @@ impl Room {
             id: uuid::Uuid::new_v4(),
             state: RoomState::NotStarted,
             current_round_id: None,
-            timestamp: SystemTime::now(),
+            expiration_timestamp: SystemTime::now(),
         }
     }
 
@@ -31,7 +33,7 @@ impl Room {
         match self.state {
             RoomState::NotStarted => Ok({
                 self.state = RoomState::Started;
-                self.timestamp = SystemTime::now();
+                self.expiration_timestamp = SystemTime::now();
             }),
             _ => Err(MemeError::NotAllowedStateTransition),
         }
@@ -41,7 +43,7 @@ impl Room {
         match self.state {
             RoomState::Started => Ok({
                 self.state = RoomState::Ended;
-                self.timestamp = SystemTime::now();
+                self.expiration_timestamp = SystemTime::now();
             }),
             _ => Err(MemeError::NotAllowedStateTransition),
         }
