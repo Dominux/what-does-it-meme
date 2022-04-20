@@ -22,3 +22,10 @@ CREATE TABLE rounds (
     situation_creator_id UUID NOT NULL REFERENCES players(id)
 );
 
+CREATE TABLE memes (
+    id UUID PRIMARY KEY NOT NULL,
+    round_id UUID NOT NULL REFERENCES rounds(id) ON DELETE CASCADE,
+    player_id UUID NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    voters_ids UUID[],
+    link VARCHAR(255)
+)

@@ -4,7 +4,7 @@ use crate::{
     apps::{
         players::services::PlayersService,
         rooms::{services::RoomsService, state_enum::RoomState},
-        rounds::{models::Round, services::RoundsService},
+        rounds::{models::Round, services::RoundsService}, memes::services::MemesService,
     },
     common::{
         config::Config,
@@ -20,6 +20,7 @@ pub struct GameService<'a> {
     rooms_service: RoomsService<'a>,
     rounds_service: RoundsService<'a>,
     players_service: PlayersService<'a>,
+    memes_service: MemesService<'a>
 }
 
 impl<'a> GameService<'a> {
@@ -28,6 +29,7 @@ impl<'a> GameService<'a> {
             rooms_service: RoomsService::new(db),
             rounds_service: RoundsService::new(db),
             players_service: PlayersService::new(db),
+            memes_service: MemesService::new(db),
         }
     }
 
