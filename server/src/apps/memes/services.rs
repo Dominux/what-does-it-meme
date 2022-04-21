@@ -52,4 +52,13 @@ impl<'a> MemesService<'a> {
             .await?;
         Ok(memes)
     }
+
+    pub async fn get_random_meme() -> MemeResult<String> {
+        let scrapers = get_scrapers();
+
+        // TODO: implement logic to distribute load among any amount of scrapers
+        // Getting random memes
+        scrapers[0].get_random_meme().await
+        
+    }
 }

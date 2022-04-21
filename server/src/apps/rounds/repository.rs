@@ -3,9 +3,8 @@ use diesel::prelude::*;
 use uuid;
 
 use crate::apps::rounds::models;
-use crate::apps::rounds::state_enum::RoundState;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeError, MemeResult};
+use crate::common::errors::MemeResult;
 
 pub struct RoundsRepository<'a> {
     db: &'a DBConnection,
@@ -39,7 +38,6 @@ impl<'a> RoundsRepository<'a> {
 
         let round = rounds::table
             .filter(rounds::columns::situation_creator_id.eq(situation_creator_id))
-            .filter(rounds::columns::state.eq(RoundState::SituationCreation))
             .first::<models::Round>(self.db)?;
         Ok(round)
     }

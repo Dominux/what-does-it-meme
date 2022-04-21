@@ -159,6 +159,9 @@ async fn test_create_situation() {
         };
         let response = test::call_service(&mut app, req).await;
 
-        assert_eq!(response.status(), 404, "Sht, status should be 404 nibba");
+        assert!(
+            response.status().is_client_error(),
+            "Sht, status should be 404 or 423 nibba"
+        );
     }
 }

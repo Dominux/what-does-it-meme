@@ -29,6 +29,9 @@ pub enum MemeError {
     #[error("You can't create situation at this round stage")]
     InvalidStateToCreateSituation,
 
+    #[error("Player does not have such meme in his hand")]
+    MemeIsNotInHand,
+
     #[error("Memes scrapping error")]
     MemesScrapingError,
 
@@ -52,6 +55,7 @@ impl ResponseError for MemeError {
             Self::TooLessPlayers => StatusCode::LOCKED,
             Self::DuplicatedName => StatusCode::CONFLICT,
             Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
+            Self::MemeIsNotInHand => StatusCode::CONFLICT,
             Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
             Self::JWTError => StatusCode::INTERNAL_SERVER_ERROR,
             Self::InvalidToken => StatusCode::UNAUTHORIZED,
