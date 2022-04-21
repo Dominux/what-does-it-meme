@@ -2,7 +2,7 @@ use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     apps::{
-        memes::services::MemesService,
+        memes::{models::Meme, services::MemesService},
         players::services::PlayersService,
         rooms::{services::RoomsService, state_enum::RoomState},
         rounds::{models::Round, services::RoundsService},
@@ -75,6 +75,28 @@ impl<'a> GameService<'a> {
     ) -> MemeResult<()> {
         self.rounds_service
             .create_situation(situation_creator_id, situation)
+    }
+
+    /// Method to react on situation with meme
+    pub fn react_with_meme(
+        &self,
+        link: String,
+        player_id: uuid::Uuid,
+        round_id: uuid::Uuid,
+        room_id: uuid::Uuid,
+    ) -> MemeResult<()> {
+        // Saving meme
+        let meme = Meme::new(round_id, player_id, link);
+        self.memes_service.save_meme(meme)?;
+
+        // Checking if all the players have already reacted
+        let players_count = self.players_service.count_players(room_id)?;
+        let memes_count = self.memes_service.count_memes(round_id)?;
+        if players_count == memes_count {
+            self.rounds_service.set_to_vote(round_id)?
+        }
+
+        Ok(())
     }
 
     /// Ending the game and return first round

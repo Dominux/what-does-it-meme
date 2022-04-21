@@ -43,6 +43,33 @@ async fn create_situation(
     Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(round))
 }
 
+#[derive(Deserialize)]
+struct ReactWithMemeJSON {
+    link: String,
+    player_id: uuid::Uuid,
+    room_id: uuid::Uuid,
+    round_id: uuid::Uuid,
+}
+
+#[post("/react_with_meme")]
+async fn react_with_meme(
+    db_pool: web::Data<DBPool>,
+    body: web::Json<ReactWithMemeJSON>,
+) -> MemeResult<HttpResponse> {
+    let db = db_pool.get()?;
+    let body = body.into_inner();
+    web::block(move || {
+        GameService::new(&db).react_with_meme(
+            body.link,
+            body.player_id,
+            body.round_id,
+            body.room_id,
+        )
+    })
+    .await??;
+    Ok(HttpResponse::Ok().status(StatusCode::NO_CONTENT).finish())
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///     Statuses
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +90,7 @@ pub fn register_router(cfg: &mut web::ServiceConfig) {
         web::scope("")
             .service(start_game)
             .service(create_situation)
+            .service(react_with_meme)
             .service(get_general_status),
     );
 }

@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use uuid;
 
 use crate::apps::rounds::models;
+use crate::apps::rounds::state_enum::RoundState;
 use crate::common::db::DBConnection;
 use crate::common::errors::{MemeError, MemeResult};
 
@@ -12,7 +13,7 @@ pub struct RoundsRepository<'a> {
 
 impl<'a> RoundsRepository<'a> {
     pub fn new(db: &'a DBConnection) -> Self {
-        Self { db: db }
+        Self { db }
     }
 
     pub fn save_round(&self, round: &models::Round) -> MemeResult<()> {
@@ -26,11 +27,7 @@ impl<'a> RoundsRepository<'a> {
     pub fn get_round(&self, uid: uuid::Uuid) -> MemeResult<models::Round> {
         use crate::apps::rounds::schema::rounds::dsl::*;
 
-        let round = rounds
-            .filter(id.eq(uid))
-            .first::<models::Round>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+        let round = rounds.filter(id.eq(uid)).first::<models::Round>(self.db)?;
         Ok(round)
     }
 
@@ -42,9 +39,8 @@ impl<'a> RoundsRepository<'a> {
 
         let round = rounds::table
             .filter(rounds::columns::situation_creator_id.eq(situation_creator_id))
-            .first::<models::Round>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+            .filter(rounds::columns::state.eq(RoundState::SituationCreation))
+            .first::<models::Round>(self.db)?;
         Ok(round)
     }
 
@@ -54,9 +50,7 @@ impl<'a> RoundsRepository<'a> {
         let round: i64 = rounds
             .select(count_star())
             .filter(room_id.eq(_room_id))
-            .first(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+            .first(self.db)?;
         Ok(round as u8)
     }
 

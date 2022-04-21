@@ -28,11 +28,7 @@ impl<'a> RoomsRepository<'a> {
     pub fn get_room(&self, uid: uuid::Uuid) -> MemeResult<models::Room> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 
-        let room = rooms
-            .filter(id.eq(uid))
-            .first::<models::Room>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+        let room = rooms.filter(id.eq(uid)).first::<models::Room>(self.db)?;
         Ok(room)
     }
 
@@ -83,9 +79,7 @@ impl<'a> RoomsRepository<'a> {
         let _expiration_timestamp = rooms
             .select(expiration_timestamp)
             .filter(id.eq(room_id))
-            .first::<SystemTime>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+            .first::<SystemTime>(self.db)?;
         Ok(_expiration_timestamp)
     }
 

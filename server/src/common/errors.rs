@@ -77,8 +77,11 @@ impl From<BlockingError> for MemeError {
 }
 
 impl From<DieselError> for MemeError {
-    fn from(_: DieselError) -> Self {
-        Self::Unknown
+    fn from(e: DieselError) -> Self {
+        match e {
+            DieselError::NotFound => Self::NotFound,
+            _ => Self::Unknown,
+        }
     }
 }
 

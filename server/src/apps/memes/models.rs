@@ -16,7 +16,7 @@ pub struct Meme {
 }
 
 impl Meme {
-    fn new(round_id: uuid::Uuid, player_id: uuid::Uuid, link: String) -> Self {
+    pub fn new(round_id: uuid::Uuid, player_id: uuid::Uuid, link: String) -> Self {
         Self {
             id: uuid::Uuid::new_v4(),
             round_id,

@@ -3,7 +3,7 @@ use uuid;
 
 use crate::apps::players::models;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeError, MemeResult};
+use crate::common::errors::MemeResult;
 
 pub struct PlayersRepository<'a> {
     pub db: &'a DBConnection,
@@ -25,27 +25,33 @@ impl<'a> PlayersRepository<'a> {
         Ok(player)
     }
 
+    pub fn get_player(&self, uid: uuid::Uuid) -> MemeResult<models::Player> {
+        use crate::apps::players::schema::players::dsl::*;
+
+        let player = players
+            .filter(id.eq(uid))
+            .first::<models::Player>(self.db)?;
+        Ok(player)
+    }
+
     pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
         use crate::apps::players::schema::players::dsl::*;
 
         let players_ids = players
             .select(id)
             .filter(room_id.eq(room_id))
-            .load::<uuid::Uuid>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
+            .load::<uuid::Uuid>(self.db)?;
         Ok(players_ids)
     }
 
-    pub fn get_player(&self, uid: uuid::Uuid) -> MemeResult<models::Player> {
+    pub fn count_players(&self, room_id: uuid::Uuid) -> MemeResult<u8> {
         use crate::apps::players::schema::players::dsl::*;
 
-        let player = players
-            .filter(id.eq(uid))
-            .first::<models::Player>(self.db)
-            .optional()?
-            .ok_or(MemeError::NotFound)?;
-        Ok(player)
+        let count: i64 = players
+            .count()
+            .filter(room_id.eq(room_id))
+            .first(self.db)?;
+        Ok(count as u8)
     }
 
     pub fn list_room_players(&self, _room_id: uuid::Uuid) -> MemeResult<Vec<models::Player>> {

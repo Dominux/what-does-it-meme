@@ -1,7 +1,7 @@
 use crate::apps::memes::scrapers::get_scrapers;
 use crate::common::config::Config;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeResult, MemeError};
+use crate::common::errors::MemeResult;
 
 use super::models;
 use super::repository::MemesRepository;
@@ -19,11 +19,15 @@ impl<'a> MemesService<'a> {
     }
 
     pub fn save_meme(&self, meme: models::Meme) -> MemeResult<()> {
-        self.repo.save_meme(meme)
+        self.repo.save_meme_if_not_exists(meme)
     }
 
-    pub fn get_meme(&self, meme_id: uuid::Uuid) -> MemeResult<models::Meme> {
-        self.repo.get_meme(meme_id)
+    // pub fn get_meme(&self, meme_id: uuid::Uuid) -> MemeResult<models::Meme> {
+    //     self.repo.get_meme(meme_id)
+    // }
+
+    pub fn count_memes(&self, round_id: uuid::Uuid) -> MemeResult<u8> {
+        self.repo.memes_count(round_id)
     }
 
     pub fn save_voter(&self, meme_id: uuid::Uuid, voter_id: uuid::Uuid) -> MemeResult<()> {

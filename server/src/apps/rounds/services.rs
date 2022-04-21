@@ -2,7 +2,7 @@ use super::repository::RoundsRepository;
 use super::state_enum::RoundState;
 use crate::apps::rounds::models;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeResult, MemeError};
+use crate::common::errors::{MemeError, MemeResult};
 
 pub struct RoundsService<'a> {
     repo: RoundsRepository<'a>,
@@ -43,18 +43,30 @@ impl<'a> RoundsService<'a> {
         self.repo.count_rounds(room_id)
     }
 
-    pub fn create_situation(&self, situation_creator_id: uuid::Uuid, situation: String) -> MemeResult<()> {
-        let mut round = self.repo.get_round_by_situation_creator_id(situation_creator_id)?;
-        
+    pub fn create_situation(
+        &self,
+        situation_creator_id: uuid::Uuid,
+        situation: String,
+    ) -> MemeResult<()> {
+        let mut round = self
+            .repo
+            .get_round_by_situation_creator_id(situation_creator_id)?;
+
         // Checking if it's right state
         if !matches!(round.state, RoundState::SituationCreation) {
-            return Err(MemeError::InvalidStateToCreateSituation)
+            return Err(MemeError::InvalidStateToCreateSituation);
         }
 
         // Saving it and updating state
         round.situation = Some(situation);
         round.set_to_choose_memes()?;
 
+        self.repo.update_round(round)
+    }
+
+    pub fn set_to_vote(&self, round_id: uuid::Uuid) -> MemeResult<()> {
+        let mut round = self.repo.get_round(round_id)?;
+        round.set_to_vote()?;
         self.repo.update_round(round)
     }
 }
