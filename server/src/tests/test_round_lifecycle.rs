@@ -165,3 +165,65 @@ async fn test_create_situation() {
         );
     }
 }
+
+#[actix_web::test]
+async fn test_react_with_memes() {
+    // Creating the app
+    let app = App::new()
+        .app_data(web::Data::new(DB_POOL.clone()))
+        .service(web::scope("games").configure(games_router));
+    let mut app = test::init_service(app).await;
+
+    // Getting db
+    let db = &DB_POOL.get().expect("Can't get db connection");
+
+    // Creating room
+    let mut room = RoomsService::new(db)
+        .create_room()
+        .expect("Can't create room");
+
+    // Adding first player
+    let in_player = InPlayer {
+        name: "ur mom 1".to_string(),
+        room_id: room.id,
+    };
+    let player = PlayersService::new(db)
+        .add_player(in_player)
+        .expect("Error on user adding");
+
+    // 1. We can't react with a meme before starting the game
+    //    cause we must pass a round id to the request body
+    //    so we have no one before the game started
+
+    // 2. Trying to react with a meme before the situation was created
+    let game_service = GameService::new(db);
+    // Adding two more players
+    let other_players = ["ur mom 2", "ur mom 3"].map(|player_name_no_one_cares_of| {
+        let in_player = InPlayer {
+            name: player_name_no_one_cares_of.to_string(),
+            room_id: room.id,
+        };
+        PlayersService::new(db)
+            .add_player(in_player)
+            .expect("Error on user adding")
+    });
+    // Starting the game
+
+    // {
+    //     let req = {
+    //         let body = json!({
+    //             "link": "http://kindergarder-jokes.com/top-dankest-joke-ever",
+    //             "player_id": player.id,
+    //             "room_id": room.id,
+    //             "round_id": round.id
+    //         });
+    //         test::TestRequest::post()
+    //             .uri("/games/react_with_meme")
+    //             .set_json(&body)
+    //             .to_request()
+    //     };
+    //     let response = test::call_service(&mut app, req).await;
+
+    //     assert_eq!(response.status(), 404, "{:?}", response.into_body());
+    // }
+}

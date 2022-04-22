@@ -26,6 +26,7 @@ pub struct Player {
     pub id: uuid::Uuid,
     pub name: String,
     pub room_id: uuid::Uuid,
+    pub memes_in_hand: Vec<String>,
 }
 
 impl Player {
@@ -34,6 +35,7 @@ impl Player {
             id: uuid::Uuid::new_v4(),
             name,
             room_id,
+            memes_in_hand: Vec::new(),
         }
     }
 }
@@ -42,48 +44,4 @@ impl From<InPlayer> for Player {
     fn from(in_player: InPlayer) -> Self {
         Self::new(in_player.name, in_player.room_id)
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub memes_in_hands: Vec<String>,
-
-    // Fields below are required to use with jsonwebtoken
-    pub sub: String,
-    pub exp: usize,
-}
-
-impl Claims {
-    pub fn new(memes_in_hands: Vec<String>) -> Self {
-        Self {
-            memes_in_hands,
-            sub: String::new(),
-            exp: 0,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PlayerWithMemes {
-    pub id: uuid::Uuid,
-    pub name: String,
-    pub room_id: uuid::Uuid,
-    pub memes_in_hands: Vec<String>,
-}
-
-impl PlayerWithMemes {
-    pub fn new(player: Player, memes_in_hands: Vec<String>) -> Self {
-        Self {
-            id: player.id,
-            name: player.name,
-            room_id: player.room_id,
-            memes_in_hands,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AddPlayerResponseJson {
-    pub player_with_memes: PlayerWithMemes,
-    pub token: String,
 }

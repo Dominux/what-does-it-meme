@@ -4,17 +4,8 @@ use serde_json::json;
 use uuid;
 
 use crate::{
-    apps::{
-        games::services::GameService, memes::services::MemesService, players::models::Claims,
-        rounds::models,
-    },
-    common::{
-        config::Config,
-        db::DBPool,
-        errors::{MemeError, MemeResult},
-        headers::AuthorizationHeader,
-        jwt_service::JWTService,
-    },
+    apps::{games::services::GameService, memes::services::MemesService, rounds::models},
+    common::{db::DBPool, errors::MemeResult},
 };
 
 #[post("/start")]
@@ -63,21 +54,20 @@ struct ReactWithMemeJSON {
 
 #[post("/react_with_meme")]
 async fn react_with_meme(
-    auth_header: web::Header<AuthorizationHeader>,
     db_pool: web::Data<DBPool>,
     body: web::Json<ReactWithMemeJSON>,
 ) -> MemeResult<HttpResponse> {
-    // Trying to pop meme from token, on error - Throwing error
-    let secret = Config::new()?.secret;
-    let jwt_service = JWTService::new(secret.as_str());
-    let mut memes_in_hands = jwt_service
-        .decode::<Claims>(auth_header.token.as_str())?
-        .memes_in_hands;
-    let index = memes_in_hands
-        .iter()
-        .position(|link| *link == body.link)
-        .ok_or(MemeError::MemeIsNotInHand)?;
-    memes_in_hands.remove(index);
+    // // Trying to pop meme from token, on error - Throwing error
+    // let secret = Config::new()?.secret;
+    // let jwt_service = JWTService::new(secret.as_str());
+    // let mut memes_in_hands = jwt_service
+    //     .decode::<Claims>(auth_header.token.as_str())?
+    //     .memes_in_hands;
+    // let index = memes_in_hands
+    //     .iter()
+    //     .position(|link| *link == body.link)
+    //     .ok_or(MemeError::MemeIsNotInHand)?;
+    // memes_in_hands.remove(index);
 
     let db = db_pool.get()?;
     let body = body.into_inner();
@@ -93,13 +83,13 @@ async fn react_with_meme(
 
     // Getting new meme for a player, adding to his hand
     let new_meme = MemesService::get_random_meme().await?;
-    memes_in_hands.push(new_meme);
-    let claims = Claims::new(memes_in_hands);
-    let new_token = jwt_service.encode(&claims)?;
+    // memes_in_hands.push(new_meme);
+    // let claims = Claims::new(memes_in_hands);
+    // let new_token = jwt_service.encode(&claims)?;
 
     Ok(HttpResponse::Ok()
         .status(StatusCode::CREATED)
-        .json(json!({ "token": new_token })))
+        .json(json!({ "token": "lol" })))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

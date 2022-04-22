@@ -20,7 +20,6 @@ diesel = { version = "1.4.8", features = ["r2d2", "postgres", "uuidv07"] }
 serde = { version = "1.0.136", features = ["derive"] }
 serde_json = "1.0.79"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
-jsonwebtoken = "8.1.0"
 
 reqwest = "0.11.10"
 scraper = "0.12.0"

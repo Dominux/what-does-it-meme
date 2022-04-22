@@ -11,7 +11,8 @@ CREATE TABLE rooms (
 CREATE TABLE players (
     id UUID PRIMARY KEY NOT NULL,
     name VARCHAR(16) NOT NULL,
-    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    memes_in_hand VARCHAR(255)[]
 );
 
 CREATE TABLE rounds (

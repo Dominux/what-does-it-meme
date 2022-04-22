@@ -8,7 +8,6 @@ use crate::apps::players::models::{self, InPlayer};
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::services::RoomsService;
-use crate::common::jwt_service::JWTService;
 use crate::common::{
     config::Config,
     db::{get_dbpool, DBPool},
@@ -55,21 +54,20 @@ async fn test_add_player() {
 
             assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
 
-            let player: models::AddPlayerResponseJson = test::read_body_json(response).await;
-            assert_eq!(player.player_with_memes.name, in_player["name"]);
-            assert_eq!(player.player_with_memes.room_id, room.id);
+            // let player: models::AddPlayerResponseJson = test::read_body_json(response).await;
+            // assert_eq!(player.player_with_memes.name, in_player["name"]);
+            // assert_eq!(player.player_with_memes.room_id, room.id);
 
             // Checking if memes are right
-            let secret = Config::new().expect("some error with config init").secret;
-            let jwt_service = JWTService::new(secret.as_str());
-            let memes_in_hand_from_token = jwt_service
-                .decode::<models::Claims>(player.token.as_str())
-                .expect("token decoding error")
-                .memes_in_hands;
-            assert_eq!(
-                player.player_with_memes.memes_in_hands,
-                memes_in_hand_from_token
-            );
+            // let jwt_service = JWTService::new(secret.as_str());
+            // let memes_in_hand_from_token = jwt_service
+            //     .decode::<models::Claims>(player.token.as_str())
+            //     .expect("token decoding error")
+            //     .memes_in_hands;
+            // assert_eq!(
+            //     player.player_with_memes.memes_in_hands,
+            //     memes_in_hand_from_token
+            // );
         };
 
         // 2. Trying to add more then limit players
