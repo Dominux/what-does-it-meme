@@ -51,6 +51,14 @@ impl Round {
             _ => Err(MemeError::NotAllowedStateTransition),
         }
     }
+
+    pub fn is_choosing_memes(&self) -> bool {
+        matches!(self.state, RoundState::ChoosingMemes)
+    }
+
+    pub fn is_voting(&self) -> bool {
+        matches!(self.state, RoundState::Voting)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

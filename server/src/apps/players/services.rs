@@ -18,7 +18,11 @@ impl<'a> PlayersService<'a> {
         }
     }
 
-    pub fn add_player(&self, in_player: InPlayer) -> MemeResult<models::Player> {
+    pub fn add_player(
+        &self,
+        in_player: InPlayer,
+        memes: Vec<String>,
+    ) -> MemeResult<models::Player> {
         // Forbidding enterring room if the game already started
         {
             let room = RoomsRepository::new(self.repo.db).get_room(in_player.room_id)?;
@@ -44,7 +48,7 @@ impl<'a> PlayersService<'a> {
             }
         }
 
-        self.repo.create(in_player)
+        self.repo.create(in_player, memes)
     }
 
     pub fn list_players_ids(&self, room_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
@@ -57,5 +61,13 @@ impl<'a> PlayersService<'a> {
 
     pub fn get_player_by_id(&self, id: uuid::Uuid) -> MemeResult<models::Player> {
         self.repo.get_player(id)
+    }
+
+    pub fn update_players_memes(
+        &self,
+        player_id: uuid::Uuid,
+        memes: Vec<String>,
+    ) -> MemeResult<()> {
+        self.repo.update_players_memes(player_id, memes)
     }
 }

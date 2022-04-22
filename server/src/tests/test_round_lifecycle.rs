@@ -1,14 +1,18 @@
 use actix_web::{test, web, App};
 use envconfig::Envconfig;
 use lazy_static::lazy_static;
+use serde::Deserialize;
 use serde_json::json;
 
 use crate::apps::games::router::register_router as games_router;
 use crate::apps::games::services::GameService;
-use crate::apps::players::models::InPlayer;
+use crate::apps::players::models::{InPlayer, Player};
+use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rooms::services::RoomsService;
+use crate::apps::rounds::repository::RoundsRepository;
+use crate::apps::rounds::schema::rounds::situation_creator_id;
 use crate::apps::rounds::services::RoundsService;
 use crate::apps::rounds::state_enum::RoundState;
 use crate::common::{
@@ -45,7 +49,7 @@ async fn test_create_situation() {
         room_id: room.id,
     };
     let player = PlayersService::new(db)
-        .add_player(in_player)
+        .add_player(in_player, Vec::new())
         .expect("Error on user adding");
 
     // 1. Trying to create situation before starting the game
@@ -73,7 +77,7 @@ async fn test_create_situation() {
             room_id: room.id,
         };
         PlayersService::new(db)
-            .add_player(in_player)
+            .add_player(in_player, Vec::new())
             .expect("Error on user adding")
     });
     let round = game_service
@@ -166,11 +170,17 @@ async fn test_create_situation() {
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct ReactWithMemeJson {
+    new_meme: String,
+}
+
 #[actix_web::test]
 async fn test_react_with_memes() {
     // Creating the app
     let app = App::new()
         .app_data(web::Data::new(DB_POOL.clone()))
+        .service(web::scope("players").configure(players_router))
         .service(web::scope("games").configure(games_router));
     let mut app = test::init_service(app).await;
 
@@ -178,52 +188,183 @@ async fn test_react_with_memes() {
     let db = &DB_POOL.get().expect("Can't get db connection");
 
     // Creating room
-    let mut room = RoomsService::new(db)
+    let room = RoomsService::new(db)
         .create_room()
         .expect("Can't create room");
 
     // Adding first player
-    let in_player = InPlayer {
-        name: "ur mom 1".to_string(),
-        room_id: room.id,
+    let player: Player = {
+        let body = json!({
+            "name": "ur mom 1",
+            "room_id": room.id,
+        });
+
+        let req = test::TestRequest::post()
+            .uri("/players")
+            .set_json(&body)
+            .to_request();
+
+        let response = test::call_service(&mut app, req).await;
+        assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
+
+        test::read_body_json(response).await
     };
-    let player = PlayersService::new(db)
-        .add_player(in_player)
-        .expect("Error on user adding");
 
     // 1. We can't react with a meme before starting the game
     //    cause we must pass a round id to the request body
     //    so we have no one before the game started
 
-    // 2. Trying to react with a meme before the situation was created
-    let game_service = GameService::new(db);
     // Adding two more players
-    let other_players = ["ur mom 2", "ur mom 3"].map(|player_name_no_one_cares_of| {
+    let mut all_players = vec![player];
+    for name in ["ur mom 2", "ur mom 3"] {
         let in_player = InPlayer {
-            name: player_name_no_one_cares_of.to_string(),
+            name: name.to_string(),
             room_id: room.id,
         };
-        PlayersService::new(db)
-            .add_player(in_player)
-            .expect("Error on user adding")
-    });
+        let new_player = PlayersService::new(db)
+            .add_player(in_player, vec!["test_meme".to_string()])
+            .expect("Error on user adding");
+        all_players.push(new_player)
+    }
+
     // Starting the game
+    let game_service = GameService::new(db);
+    let mut round = game_service
+        .start_game(room.id)
+        .expect("Error on game starting");
 
-    // {
-    //     let req = {
-    //         let body = json!({
-    //             "link": "http://kindergarder-jokes.com/top-dankest-joke-ever",
-    //             "player_id": player.id,
-    //             "room_id": room.id,
-    //             "round_id": round.id
-    //         });
-    //         test::TestRequest::post()
-    //             .uri("/games/react_with_meme")
-    //             .set_json(&body)
-    //             .to_request()
-    //     };
-    //     let response = test::call_service(&mut app, req).await;
+    let situation_creator_index = all_players
+        .iter()
+        .position(|player| player.id == round.situation_creator_id)
+        .expect("Error on finding situation creator among all players");
+    let situation_creator = all_players.remove(situation_creator_index);
 
-    //     assert_eq!(response.status(), 404, "{:?}", response.into_body());
-    // }
+    // 2. Trying to react with a meme before the situation was created
+    {
+        let req = {
+            let body = json!({
+                "link": all_players[0].memes_in_hand[0],
+                "player_id": all_players[0].id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 423, "{:?}", response.into_body());
+    }
+
+    round
+        .set_to_choose_memes()
+        .expect("Error on setting round to choose memes");
+    RoundsRepository::new(db)
+        .update_round(round.clone())
+        .expect("Error on round updating");
+
+    // 3. Trying to react with a meme in the right moment of the round
+    let new_meme = {
+        let req = {
+            let body = json!({
+                "link": all_players[0].memes_in_hand[0],
+                "player_id": all_players[0].id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 201, "{:?}", response.into_body());
+
+        let json: ReactWithMemeJson = test::read_body_json(response).await;
+        json.new_meme
+    };
+
+    // 4. Trying to react with a meme one more time
+    {
+        let req = {
+            let body = json!({
+                "link": all_players[0].memes_in_hand[0],
+                "player_id": all_players[0].id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 423, "{:?}", response.into_body());
+    }
+
+    // 5. Trying to react with a meme that is not in our collection
+    {
+        let req = {
+            let body = json!({
+                "link": "http://kindergarder-jokes.com/top-dankest-joke-ever",
+                "player_id": all_players[0].id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 409, "{:?}", response.into_body());
+    }
+
+    // 6. Trying to react with a meme as situation creator
+    {
+        let req = {
+            let body = json!({
+                "link": situation_creator.memes_in_hand[0],
+                "player_id": situation_creator.id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 401, "{:?}", response.into_body());
+    }
+
+    // 7. Trying to react with a meme the last time
+    // (consider round to be setted to vote)
+    {
+        let req = {
+            let body = json!({
+                "link": all_players[1].memes_in_hand[0],
+                "player_id": all_players[1].id,
+                "round_id": round.id
+            });
+            test::TestRequest::post()
+                .uri("/games/react_with_meme")
+                .set_json(&body)
+                .to_request()
+        };
+        let response = test::call_service(&mut app, req).await;
+
+        assert_eq!(response.status(), 201, "{:?}", response.into_body());
+
+        let _json: ReactWithMemeJson = test::read_body_json(response).await;
+    
+        // Checking if we came to the next stage
+        let round = RoundsRepository::new(db).get_round(round.id).expect("Error on getting round");
+        assert!(round.is_voting())
+    };
+
+
+    // 8. Trying to react with newly added meme in the next round
+    // TODO
 }

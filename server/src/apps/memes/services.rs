@@ -18,7 +18,7 @@ impl<'a> MemesService<'a> {
         }
     }
 
-    pub fn save_meme(&self, meme: models::Meme) -> MemeResult<()> {
+    pub fn save_meme_if_not_exists(&self, meme: models::Meme) -> MemeResult<bool> {
         self.repo.save_meme_if_not_exists(meme)
     }
 
@@ -59,6 +59,5 @@ impl<'a> MemesService<'a> {
         // TODO: implement logic to distribute load among any amount of scrapers
         // Getting random memes
         scrapers[0].get_random_meme().await
-        
     }
 }

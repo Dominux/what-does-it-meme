@@ -48,12 +48,12 @@ impl<'a> GameService<'a> {
             }
 
             // Choosing a situation creator
-            let sutiation_creator = *players_ids
+            let sutiation_creator_id = *players_ids
                 .choose(&mut thread_rng())
                 .ok_or(MemeError::TooLessPlayers)?;
 
             self.rounds_service
-                .create_round(room_id, sutiation_creator)?
+                .create_round(room_id, sutiation_creator_id)?
         };
 
         // Attaching the round to the room as the current one
@@ -83,20 +83,55 @@ impl<'a> GameService<'a> {
         link: String,
         player_id: uuid::Uuid,
         round_id: uuid::Uuid,
-        room_id: uuid::Uuid,
-    ) -> MemeResult<()> {
+        new_meme: String,
+    ) -> MemeResult<bool> {
+        let room_id = {
+            let round = self.rounds_service.get_round(round_id)?;
+
+            // Validating round state
+            if !round.is_choosing_memes() {
+                return Err(MemeError::InvalidStateToReactWithMeme);
+            }
+
+            // Validating if player is situation creator (he can't choose meme in this round)
+            if round.situation_creator_id == player_id {
+                return Err(MemeError::SituationCreatorCant("choose memes".to_string()));
+            }
+
+            round.room_id
+        };
+
+        // Checking if the player has the meme in his hands
+        let mut players_memes = self
+            .players_service
+            .get_player_by_id(player_id)?
+            .memes_in_hand;
+
+        if !players_memes.contains(&link) {
+            return Err(MemeError::MemeIsNotInHand);
+        }
+
         // Saving meme
         let meme = Meme::new(round_id, player_id, link);
-        self.memes_service.save_meme(meme)?;
+        let is_created = self.memes_service.save_meme_if_not_exists(meme)?;
+        if !is_created {
+            return Err(MemeError::AlreadyReactedWithMeme);
+        }
 
         // Checking if all the players have already reacted
         let players_count = self.players_service.count_players(room_id)?;
         let memes_count = self.memes_service.count_memes(round_id)?;
-        if players_count == memes_count {
+        let max_memes_limit = players_count - 1; // Substracting 1 cause 1 player is a situation creator
+        if max_memes_limit == memes_count {
             self.rounds_service.set_to_vote(round_id)?
         }
 
-        Ok(())
+        // Adding meme to player's hand
+        players_memes.push(new_meme);
+        self.players_service
+            .update_players_memes(player_id, players_memes)?;
+
+        Ok(true)
     }
 
     /// Ending the game and return first round

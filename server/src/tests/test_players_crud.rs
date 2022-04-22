@@ -53,21 +53,6 @@ async fn test_add_player() {
             let response = test::call_service(&mut app, req).await;
 
             assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
-
-            // let player: models::AddPlayerResponseJson = test::read_body_json(response).await;
-            // assert_eq!(player.player_with_memes.name, in_player["name"]);
-            // assert_eq!(player.player_with_memes.room_id, room.id);
-
-            // Checking if memes are right
-            // let jwt_service = JWTService::new(secret.as_str());
-            // let memes_in_hand_from_token = jwt_service
-            //     .decode::<models::Claims>(player.token.as_str())
-            //     .expect("token decoding error")
-            //     .memes_in_hands;
-            // assert_eq!(
-            //     player.player_with_memes.memes_in_hands,
-            //     memes_in_hand_from_token
-            // );
         };
 
         // 2. Trying to add more then limit players
@@ -79,7 +64,7 @@ async fn test_add_player() {
                     room_id: room.id,
                 };
                 PlayersService::new(db)
-                    .add_player(in_player)
+                    .add_player(in_player, Vec::new())
                     .expect(format!("Can't create player with name \"{}\"", name).as_str());
             }
 
@@ -114,7 +99,7 @@ async fn test_add_player() {
             room_id: room.id,
         };
         PlayersService::new(db)
-            .add_player(in_player)
+            .add_player(in_player, Vec::new())
             .expect(format!("Can't create player with name \"{}\"", name).as_str());
 
         // Trying to create a player with the same name
@@ -135,14 +120,13 @@ async fn test_add_player() {
     {
         // Creating room
         let game_service = GameService::new(db);
-        let room = RoomsService::new(db)
+        let mut room = RoomsService::new(db)
             .create_room()
             .expect("Can't create room");
 
         // Starting game
-        game_service
-            .start_game(room.id)
-            .expect("Can't start the game");
+        room.start_game().expect("Can't start the game");
+        RoomsService::new(db).update_game(room).expect("Can't update the game");
 
         // Trying to create a player
         let in_player = json!({

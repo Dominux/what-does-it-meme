@@ -17,10 +17,14 @@ impl<'a> MemesRepository<'a> {
     }
 
     /// Saving meme only if voter have not saved one yet
-    pub fn save_meme_if_not_exists(&self, meme: models::Meme) -> MemeResult<()> {
+    /// returns whether it was created or not
+    pub fn save_meme_if_not_exists(&self, meme: models::Meme) -> MemeResult<bool> {
         match self.get_meme_by_player_id_and_round_id(meme.player_id, meme.round_id) {
-            Err(MemeError::NotFound) => self.save_meme(&meme),
-            Ok(_) => Ok(()),
+            Err(MemeError::NotFound) => {
+                self.save_meme(&meme)?;
+                Ok(true)
+            }
+            Ok(_) => Ok(false),
             Err(e) => Err(e),
         }
     }
@@ -52,7 +56,8 @@ impl<'a> MemesRepository<'a> {
     }
 
     pub fn memes_count(&self, round_id: uuid::Uuid) -> MemeResult<u8> {
-        let count: i64 = memes::table.count()
+        let count: i64 = memes::table
+            .count()
             .filter(memes::columns::round_id.eq(round_id))
             .first(self.db)?;
         Ok(count as u8)

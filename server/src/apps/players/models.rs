@@ -30,18 +30,12 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: String, room_id: uuid::Uuid) -> Self {
+    pub fn new(name: String, room_id: uuid::Uuid, memes: Vec<String>) -> Self {
         Self {
             id: uuid::Uuid::new_v4(),
             name,
             room_id,
-            memes_in_hand: Vec::new(),
+            memes_in_hand: memes,
         }
-    }
-}
-
-impl From<InPlayer> for Player {
-    fn from(in_player: InPlayer) -> Self {
-        Self::new(in_player.name, in_player.room_id)
     }
 }

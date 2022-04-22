@@ -26,20 +26,23 @@ pub enum MemeError {
     #[error("Another player in the room already has this name")]
     DuplicatedName,
 
+    #[error("Situation creator cannot `{0}`")]
+    SituationCreatorCant(String),
+
+    #[error("You can't react with a meme at this round stage")]
+    InvalidStateToReactWithMeme,
+
     #[error("You can't create situation at this round stage")]
     InvalidStateToCreateSituation,
+
+    #[error("You already reacted to this situation")]
+    AlreadyReactedWithMeme,
 
     #[error("Player does not have such meme in his hand")]
     MemeIsNotInHand,
 
     #[error("Memes scrapping error")]
     MemesScrapingError,
-
-    #[error("JWT error")]
-    JWTError,
-
-    #[error("Invalid token")]
-    InvalidToken,
 
     #[error("Unknown")]
     Unknown,
@@ -54,11 +57,12 @@ impl ResponseError for MemeError {
             Self::AchivedPlayersLimit => StatusCode::CONFLICT,
             Self::TooLessPlayers => StatusCode::LOCKED,
             Self::DuplicatedName => StatusCode::CONFLICT,
+            Self::SituationCreatorCant(_) => StatusCode::UNAUTHORIZED,
             Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
+            Self::InvalidStateToReactWithMeme => StatusCode::LOCKED,
+            Self::AlreadyReactedWithMeme => StatusCode::LOCKED,
             Self::MemeIsNotInHand => StatusCode::CONFLICT,
             Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::JWTError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::InvalidToken => StatusCode::UNAUTHORIZED,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

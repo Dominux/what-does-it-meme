@@ -48,7 +48,6 @@ async fn create_situation(
 struct ReactWithMemeJSON {
     link: String,
     player_id: uuid::Uuid,
-    room_id: uuid::Uuid,
     round_id: uuid::Uuid,
 }
 
@@ -57,17 +56,9 @@ async fn react_with_meme(
     db_pool: web::Data<DBPool>,
     body: web::Json<ReactWithMemeJSON>,
 ) -> MemeResult<HttpResponse> {
-    // // Trying to pop meme from token, on error - Throwing error
-    // let secret = Config::new()?.secret;
-    // let jwt_service = JWTService::new(secret.as_str());
-    // let mut memes_in_hands = jwt_service
-    //     .decode::<Claims>(auth_header.token.as_str())?
-    //     .memes_in_hands;
-    // let index = memes_in_hands
-    //     .iter()
-    //     .position(|link| *link == body.link)
-    //     .ok_or(MemeError::MemeIsNotInHand)?;
-    // memes_in_hands.remove(index);
+    // Getting new meme for a player
+    let new_meme = MemesService::get_random_meme().await?;
+    let new_meme_copy = new_meme.clone();
 
     let db = db_pool.get()?;
     let body = body.into_inner();
@@ -76,20 +67,14 @@ async fn react_with_meme(
             body.link,
             body.player_id,
             body.round_id,
-            body.room_id,
+            new_meme_copy,
         )
     })
     .await??;
 
-    // Getting new meme for a player, adding to his hand
-    let new_meme = MemesService::get_random_meme().await?;
-    // memes_in_hands.push(new_meme);
-    // let claims = Claims::new(memes_in_hands);
-    // let new_token = jwt_service.encode(&claims)?;
-
     Ok(HttpResponse::Ok()
         .status(StatusCode::CREATED)
-        .json(json!({ "token": "lol" })))
+        .json(json!({ "new_meme": new_meme })))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

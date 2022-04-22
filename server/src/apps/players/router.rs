@@ -15,26 +15,12 @@ async fn add_player(
     let player = in_player.to_owned();
     let db = db_pool.get()?;
 
-    // Adding player
-    let player = web::block(move || PlayersService::new(&db).add_player(player)).await??;
-
-    // Creating memes for him
+    // Creating memes for player
     let memes = MemesService::get_random_memes().await?;
-    // let player_with_memes = PlayerWithMemes::new(player, memes.clone());
 
-    // let response_json = {
-    //     // Creating jwt token
-    //     let claims = Claims::new(memes);
-    //     let token = JWTService::new(Config::new()?.secret.as_str()).encode(&claims)?;
-
-    //     AddPlayerResponseJson {
-    //         player_with_memes,
-    //         token,
-    //     }
-    // };
-
-    Ok(HttpResponse::Ok().status(StatusCode::CREATED).finish())
-    // .json(response_json))
+    // Adding player
+    let player = web::block(move || PlayersService::new(&db).add_player(player, memes)).await??;
+    Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(player))
 }
 
 #[get("/{id}")]
