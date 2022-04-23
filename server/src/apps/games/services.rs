@@ -154,6 +154,12 @@ impl<'a> GameService<'a> {
                 return Err(MemeError::SituationCreatorCant("vote".to_string()));
             }
 
+            // Validating if the voter of a meme is it's author
+            let meme_reactor_id = self.memes_service.get_meme(meme_id)?.player_id;
+            if player_id == meme_reactor_id {
+                return Err(MemeError::PlayerCannotVoteForHisMeme)
+            }
+
             round.room_id
         };
 

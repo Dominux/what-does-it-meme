@@ -1,5 +1,4 @@
 use actix_web::{test, web, App};
-use envconfig::Envconfig;
 use lazy_static::lazy_static;
 
 use crate::apps::rooms::models;
@@ -12,7 +11,7 @@ use crate::common::{
 
 lazy_static! {
     static ref DB_POOL: DBPool = {
-        let config = Config::init_from_env().unwrap();
+        let config = Config::new().unwrap();
         get_dbpool(config.get_db_uri())
     };
 }

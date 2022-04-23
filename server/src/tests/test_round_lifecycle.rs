@@ -1,5 +1,4 @@
 use actix_web::{test, web, App};
-use envconfig::Envconfig;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use serde_json::json;
@@ -21,7 +20,7 @@ use crate::common::{
 
 lazy_static! {
     static ref DB_POOL: DBPool = {
-        let config = Config::init_from_env().unwrap();
+        let config = Config::new().unwrap();
         get_dbpool(config.get_db_uri())
     };
 }
@@ -357,12 +356,13 @@ async fn test_react_with_memes() {
         assert_eq!(response.status(), 201, "{:?}", response.into_body());
 
         let _json: ReactWithMemeJson = test::read_body_json(response).await;
-    
+
         // Checking if we came to the next stage
-        let round = RoundsRepository::new(db).get_round(round.id).expect("Error on getting round");
+        let round = RoundsRepository::new(db)
+            .get_round(round.id)
+            .expect("Error on getting round");
         assert!(round.is_voting())
     };
-
 
     // 8. Trying to react with newly added meme in the next round
     // TODO

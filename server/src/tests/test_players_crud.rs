@@ -1,10 +1,9 @@
 use actix_web::{test, web, App};
-use envconfig::Envconfig;
 use lazy_static::lazy_static;
 use serde_json::json;
 
 use crate::apps::games::services::GameService;
-use crate::apps::players::models::{self, InPlayer};
+use crate::apps::players::models::InPlayer;
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::services::RoomsService;
@@ -15,7 +14,7 @@ use crate::common::{
 
 lazy_static! {
     static ref DB_POOL: DBPool = {
-        let config = Config::init_from_env().unwrap();
+        let config = Config::new().unwrap();
         get_dbpool(config.get_db_uri())
     };
     static ref NAMES: [&'static str; 6] =
