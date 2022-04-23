@@ -126,7 +126,8 @@ async fn test_add_player() {
 
         // Starting game
         room.start_game().expect("Can't start the game");
-        RoomsService::new(db).update_game(room).expect("Can't update the game");
+        let rooms_service = RoomsService::new(db);
+        rooms_service.update_game(room).expect("Can't update the game");
 
         // Trying to create a player
         let in_player = json!({
@@ -141,8 +142,9 @@ async fn test_add_player() {
 
         assert_eq!(response.status(), 423, "Sht, status should be 423 nibba");
 
-        // Encding game
-        game_service.end_game(room.id).expect("Can't end the game");
+        // Ending game
+        room.end_game().expect("Error on ending game");
+        rooms_service.update_game(room).expect("Error on updating game");
 
         // Trying to create a player
         let in_player = json!({
