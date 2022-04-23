@@ -134,11 +134,87 @@ impl<'a> GameService<'a> {
         Ok(true)
     }
 
-    /// Ending the game and return first round
-    pub fn end_game(&self, room_id: uuid::Uuid) -> MemeResult<()> {
+    // Method to vote
+    pub fn vote(
+        &self,
+        round_id: uuid::Uuid,
+        meme_id: uuid::Uuid,
+        player_id: uuid::Uuid,
+    ) -> MemeResult<()> {
+        let room_id = {
+            let round = self.rounds_service.get_round(round_id)?;
+
+            // Validating round state
+            if !round.is_voting() {
+                return Err(MemeError::InvalidStateToVote);
+            }
+
+            // Validating if player is situation creator (he can't choose meme in this round)
+            if round.situation_creator_id == player_id {
+                return Err(MemeError::SituationCreatorCant("vote".to_string()));
+            }
+
+            round.room_id
+        };
+
+        // Saving vote
+        self.memes_service.save_voter(meme_id, player_id)?;
+
+        // Checking if all the players have already voted
+        let limit_voters_amount = self.players_service.count_players(room_id)? - 1; // Substracting 1 cause 1 player is a situation creator
+        let actual_voters_amount = self
+            .memes_service
+            .list_all_round_voters_ids(round_id)?
+            .len() as u8;
+        if limit_voters_amount == actual_voters_amount {
+            self.rounds_service.end_round(round_id)?;
+
+            // Creating next round, if it's None - then we need stop the game
+            if matches!(self.next_round(room_id)?, None) {
+                self.end_game(room_id)?
+            }
+        }
+        Ok(())
+    }
+
+    /// Creating next round
+    fn next_round(&self, room_id: uuid::Uuid) -> MemeResult<Option<Round>> {
         // Getting the room
         let mut room = self.rooms_service.get_room_by_id(room_id)?;
 
+        // Creating a round
+        let round = {
+            // Checking if previous round was the last
+            let rounds_amount_limit = Config::new()?.rounds_amount;
+            let rounds_amount = self.rounds_service.get_rounds_amount(room_id)?;
+            if rounds_amount_limit > rounds_amount {
+                let players_ids = self.players_service.list_players_ids(room_id)?;
+
+                // Choosing a situation creator
+                let sutiation_creator_id = *players_ids
+                    .choose(&mut thread_rng())
+                    .ok_or(MemeError::TooLessPlayers)?;
+
+                Some(
+                    self.rounds_service
+                        .create_round(room_id, sutiation_creator_id)?,
+                )
+            } else {
+                None
+            }
+        };
+
+        // Attaching the round to the room as the current one
+        room.current_round_id = round.as_ref().map(|r| r.id);
+        self.rooms_service.update_game(room)?;
+
+        // Finally returning the new round
+        Ok(round)
+    }
+
+    /// End the game
+    fn end_game(&self, room_id: uuid::Uuid) -> MemeResult<()> {
+        let mut room = self.rooms_service.get_room_by_id(room_id)?;
         // TODO: add logic
 
         // Ending

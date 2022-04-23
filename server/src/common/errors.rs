@@ -29,14 +29,20 @@ pub enum MemeError {
     #[error("Situation creator cannot `{0}`")]
     SituationCreatorCant(String),
 
-    #[error("You can't react with a meme at this round stage")]
-    InvalidStateToReactWithMeme,
-
     #[error("You can't create situation at this round stage")]
     InvalidStateToCreateSituation,
 
+    #[error("You can't react with a meme at this round stage")]
+    InvalidStateToReactWithMeme,
+
+    #[error("You can't vote at this round stage")]
+    InvalidStateToVote,
+
     #[error("You already reacted to this situation")]
     AlreadyReactedWithMeme,
+
+    #[error("You already voted")]
+    AlreadyVoted,
 
     #[error("Player does not have such meme in his hand")]
     MemeIsNotInHand,
@@ -60,7 +66,9 @@ impl ResponseError for MemeError {
             Self::SituationCreatorCant(_) => StatusCode::UNAUTHORIZED,
             Self::InvalidStateToCreateSituation => StatusCode::LOCKED,
             Self::InvalidStateToReactWithMeme => StatusCode::LOCKED,
+            Self::InvalidStateToVote => StatusCode::LOCKED,
             Self::AlreadyReactedWithMeme => StatusCode::LOCKED,
+            Self::AlreadyVoted => StatusCode::LOCKED,
             Self::MemeIsNotInHand => StatusCode::CONFLICT,
             Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,

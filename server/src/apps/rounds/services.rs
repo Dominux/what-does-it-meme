@@ -69,4 +69,10 @@ impl<'a> RoundsService<'a> {
         round.set_to_vote()?;
         self.repo.update_round(round)
     }
+
+    pub fn end_round(&self, round_id: uuid::Uuid) -> MemeResult<()> {
+        let mut round = self.repo.get_round(round_id)?;
+        round.end_round()?;
+        self.repo.update_round(round)
+    }
 }

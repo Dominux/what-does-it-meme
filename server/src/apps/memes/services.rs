@@ -1,7 +1,7 @@
 use crate::apps::memes::scrapers::get_scrapers;
 use crate::common::config::Config;
 use crate::common::db::DBConnection;
-use crate::common::errors::MemeResult;
+use crate::common::errors::{MemeError, MemeResult};
 
 use super::models;
 use super::repository::MemesRepository;
@@ -22,25 +22,34 @@ impl<'a> MemesService<'a> {
         self.repo.save_meme_if_not_exists(meme)
     }
 
-    // pub fn get_meme(&self, meme_id: uuid::Uuid) -> MemeResult<models::Meme> {
-    //     self.repo.get_meme(meme_id)
-    // }
+    pub fn get_meme(&self, meme_id: uuid::Uuid) -> MemeResult<models::Meme> {
+        self.repo.get_meme(meme_id)
+    }
 
     pub fn count_memes(&self, round_id: uuid::Uuid) -> MemeResult<u8> {
         self.repo.memes_count(round_id)
     }
 
     pub fn save_voter(&self, meme_id: uuid::Uuid, voter_id: uuid::Uuid) -> MemeResult<()> {
-        let mut voters_ids = self.repo.get_meme(meme_id)?.voters_ids;
+        let mut meme = self.repo.get_meme(meme_id)?;
 
-        // if voter is already is in the list of the meme's voters -> skip his saving
-        if !voters_ids.contains(&voter_id) {
-            voters_ids.push(voter_id);
-            self.repo.update_voters_ids(meme_id, voters_ids)?
+        // Validating if voter has already voted in this round
+        let all_round_voters_ids = self.repo.list_all_round_voters_ids(meme.round_id)?;
+        if all_round_voters_ids.contains(&voter_id) {
+            return Err(MemeError::AlreadyVoted);
         }
 
-        Ok(())
+        meme.voters_ids.push(voter_id);
+        self.repo.update_voters_ids(meme_id, meme.voters_ids)
     }
+
+    pub fn list_all_round_voters_ids(&self, round_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
+        self.repo.list_all_round_voters_ids(round_id)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //  Getting memes
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     pub async fn get_random_memes() -> MemeResult<Vec<String>> {
         let scrapers = get_scrapers();

@@ -12,7 +12,6 @@ use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rooms::services::RoomsService;
 use crate::apps::rounds::repository::RoundsRepository;
-use crate::apps::rounds::schema::rounds::situation_creator_id;
 use crate::apps::rounds::services::RoundsService;
 use crate::apps::rounds::state_enum::RoundState;
 use crate::common::{

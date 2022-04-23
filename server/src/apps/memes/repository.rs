@@ -55,6 +55,15 @@ impl<'a> MemesRepository<'a> {
         Ok(meme)
     }
 
+    pub fn list_all_round_voters_ids(&self, round_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
+        let all_voters_ids = memes::table
+            .select(memes::voters_ids)
+            .filter(memes::round_id.eq(round_id))
+            .load::<Vec<uuid::Uuid>>(self.db)?
+            .concat();
+        Ok(all_voters_ids)
+    }
+
     pub fn memes_count(&self, round_id: uuid::Uuid) -> MemeResult<u8> {
         let count: i64 = memes::table
             .count()
@@ -68,6 +77,9 @@ impl<'a> MemesRepository<'a> {
         meme_id: uuid::Uuid,
         voters_ids: Vec<uuid::Uuid>,
     ) -> MemeResult<()> {
-        unimplemented!()
+        diesel::update(memes::table.filter(memes::id.eq(meme_id)))
+            .set(memes::voters_ids.eq(voters_ids))
+            .execute(self.db)?;
+        Ok(())
     }
 }
