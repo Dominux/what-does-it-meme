@@ -77,6 +77,23 @@ async fn react_with_meme(
         .json(json!({ "new_meme": new_meme })))
 }
 
+#[derive(Deserialize)]
+struct VoteJSON {
+    meme_id: uuid::Uuid,
+    player_id: uuid::Uuid,
+    round_id: uuid::Uuid,
+}
+
+#[post("/vote")]
+async fn vote(db_pool: web::Data<DBPool>, body: web::Json<VoteJSON>) -> MemeResult<HttpResponse> {
+    let db = db_pool.get()?;
+    let body = body.into_inner();
+    web::block(move || GameService::new(&db).vote(body.round_id, body.meme_id, body.player_id))
+        .await??;
+
+    Ok(HttpResponse::Ok().status(StatusCode::NO_CONTENT).finish())
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///     Statuses
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +115,7 @@ pub fn register_router(cfg: &mut web::ServiceConfig) {
             .service(start_game)
             .service(create_situation)
             .service(react_with_meme)
+            .service(vote)
             .service(get_general_status),
     );
 }

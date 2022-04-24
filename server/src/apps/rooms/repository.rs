@@ -5,7 +5,7 @@ use uuid;
 
 use crate::apps::rooms::models;
 use crate::common::db::DBConnection;
-use crate::common::errors::{MemeError, MemeResult};
+use crate::common::errors::MemeResult;
 
 pub struct RoomsRepository<'a> {
     db: &'a DBConnection,
