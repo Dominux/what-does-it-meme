@@ -1,6 +1,10 @@
+use std::time::SystemTime;
+
 use super::repository::RoundsRepository;
 use super::state_enum::RoundState;
+use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rounds::models;
+use crate::common::config::Config;
 use crate::common::db::DBConnection;
 use crate::common::errors::{MemeError, MemeResult};
 
@@ -61,18 +65,33 @@ impl<'a> RoundsService<'a> {
         round.situation = Some(situation);
         round.set_to_choose_memes()?;
 
-        self.repo.update_round(round)
+        self.repo.update_round(round.clone())?;
+
+        // Updating room's expiration timestamp
+        let expiration_timestamp = SystemTime::now() + Config::new()?.time_to_choose_memes;
+        RoomsRepository::new(self.repo.db)
+            .update_room_expiration_timestamp(round.room_id, expiration_timestamp)
     }
 
     pub fn set_to_vote(&self, round_id: uuid::Uuid) -> MemeResult<()> {
         let mut round = self.repo.get_round(round_id)?;
         round.set_to_vote()?;
-        self.repo.update_round(round)
+        self.repo.update_round(round.clone())?;
+
+        // Updating room's expiration timestamp
+        let expiration_timestamp = SystemTime::now() + Config::new()?.time_to_vote;
+        RoomsRepository::new(self.repo.db)
+            .update_room_expiration_timestamp(round.room_id, expiration_timestamp)
     }
 
     pub fn end_round(&self, round_id: uuid::Uuid) -> MemeResult<()> {
         let mut round = self.repo.get_round(round_id)?;
         round.end_round()?;
-        self.repo.update_round(round)
+        self.repo.update_round(round.clone())?;
+
+        // Updating room's expiration timestamp
+        let expiration_timestamp = SystemTime::now() + Config::new()?.time_to_create_situation;
+        RoomsRepository::new(self.repo.db)
+            .update_room_expiration_timestamp(round.room_id, expiration_timestamp)
     }
 }

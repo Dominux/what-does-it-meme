@@ -13,13 +13,13 @@ pub struct RoomsRepository<'a> {
 
 impl<'a> RoomsRepository<'a> {
     pub fn new(db: &'a DBConnection) -> Self {
-        Self { db: db }
+        Self { db }
     }
 
     pub fn create_room(&self) -> MemeResult<models::Room> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 
-        let room = models::Room::new();
+        let room = models::Room::new()?;
         diesel::insert_into(rooms).values(&room).execute(self.db)?;
 
         Ok(room)
@@ -31,29 +31,6 @@ impl<'a> RoomsRepository<'a> {
         let room = rooms.filter(id.eq(uid)).first::<models::Room>(self.db)?;
         Ok(room)
     }
-
-    // pub fn get_room_by_player_id(&self, player_id: uuid::Uuid) -> MemeResult<models::Room> {
-    //     use crate::apps::players::schema::players;
-    //     use crate::apps::rooms::schema::rooms;
-
-    //     let rooms_table = rooms::table;
-    //     let players_table = players::table;
-
-    //     allow_tables_to_appear_in_same_query!(rooms, players);
-
-    //     let room = rooms_table
-    //         .inner_join(players_table.on(players::dsl::id.eq(player_id)))
-    //         .select((
-    //             rooms::columns::id,
-    //             rooms::columns::state,
-    //             rooms::columns::current_round_id,
-    //             rooms::columns::expiration_timestamp,
-    //         ))
-    //         .first::<models::Room>(self.db)
-    //         .optional()?
-    //         .ok_or(MemeError::NotFound)?;
-    //     Ok(room)
-    // }
 
     pub fn update_room(&self, room: models::Room) -> MemeResult<()> {
         use crate::apps::rooms::schema::rooms::dsl::*;
@@ -69,21 +46,17 @@ impl<'a> RoomsRepository<'a> {
         Ok(())
     }
 
-    ////////////////////////////////////////////
-    //  Timestamp getting/setting
-    ////////////////////////////////////////////
-
-    pub fn get_expiration_timestamp(&self, room_id: uuid::Uuid) -> MemeResult<SystemTime> {
+    pub fn update_room_expiration_timestamp(
+        &self,
+        room_id: uuid::Uuid,
+        et: SystemTime,
+    ) -> MemeResult<()> {
         use crate::apps::rooms::schema::rooms::dsl::*;
 
-        let _expiration_timestamp = rooms
-            .select(expiration_timestamp)
-            .filter(id.eq(room_id))
-            .first::<SystemTime>(self.db)?;
-        Ok(_expiration_timestamp)
-    }
+        diesel::update(rooms.filter(id.eq(room_id)))
+            .set((expiration_timestamp.eq(et),))
+            .execute(self.db)?;
 
-    ////////////////////////////////////////////
-    //  Current round getting/setting
-    ////////////////////////////////////////////
+        Ok(())
+    }
 }

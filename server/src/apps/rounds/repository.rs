@@ -7,7 +7,7 @@ use crate::common::db::DBConnection;
 use crate::common::errors::MemeResult;
 
 pub struct RoundsRepository<'a> {
-    db: &'a DBConnection,
+    pub db: &'a DBConnection,
 }
 
 impl<'a> RoundsRepository<'a> {

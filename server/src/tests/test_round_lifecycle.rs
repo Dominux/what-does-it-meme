@@ -268,7 +268,7 @@ async fn test_react_with_memes() {
         .expect("Error on round updating");
 
     // 3. Trying to react with a meme in the right moment of the round
-    let new_meme = {
+    {
         let req = {
             let body = json!({
                 "link": all_players[0].memes_in_hand[0],

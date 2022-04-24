@@ -2,7 +2,6 @@ use actix_web::{test, web, App};
 use lazy_static::lazy_static;
 use serde_json::json;
 
-use crate::apps::games::services::GameService;
 use crate::apps::players::models::InPlayer;
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
@@ -118,7 +117,6 @@ async fn test_add_player() {
     // 4. Trying to add player if the room already started game or after ended the game
     {
         // Creating room
-        let game_service = GameService::new(db);
         let mut room = RoomsService::new(db)
             .create_room()
             .expect("Can't create room");
@@ -126,7 +124,9 @@ async fn test_add_player() {
         // Starting game
         room.start_game().expect("Can't start the game");
         let rooms_service = RoomsService::new(db);
-        rooms_service.update_game(room).expect("Can't update the game");
+        rooms_service
+            .update_game(room)
+            .expect("Can't update the game");
 
         // Trying to create a player
         let in_player = json!({
@@ -143,7 +143,9 @@ async fn test_add_player() {
 
         // Ending game
         room.end_game().expect("Error on ending game");
-        rooms_service.update_game(room).expect("Error on updating game");
+        rooms_service
+            .update_game(room)
+            .expect("Error on updating game");
 
         // Trying to create a player
         let in_player = json!({
