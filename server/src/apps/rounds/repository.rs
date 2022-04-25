@@ -23,6 +23,15 @@ impl<'a> RoundsRepository<'a> {
         Ok(())
     }
 
+    pub fn list_rounds(&self, room_id: uuid::Uuid) -> MemeResult<Vec<models::Round>> {
+        use crate::apps::rounds::schema::rounds;
+
+        let rounds = rounds::table
+            .filter(rounds::room_id.eq(room_id))
+            .load(self.db)?;
+        Ok(rounds)
+    }
+
     pub fn get_round(&self, uid: uuid::Uuid) -> MemeResult<models::Round> {
         use crate::apps::rounds::schema::rounds::dsl::*;
 

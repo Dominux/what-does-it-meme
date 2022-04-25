@@ -39,6 +39,10 @@ impl<'a> RoundsService<'a> {
         Ok(round)
     }
 
+    pub fn list_rounds(&self, room_id: uuid::Uuid) -> MemeResult<Vec<models::Round>> {
+        self.repo.list_rounds(room_id)
+    }
+
     pub fn get_round(&self, uid: uuid::Uuid) -> MemeResult<models::Round> {
         self.repo.get_round(uid)
     }

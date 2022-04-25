@@ -1,4 +1,10 @@
-use actix_web::{get, http::StatusCode, post, web, HttpResponse};
+use actix_web::{
+    get,
+    http::StatusCode,
+    post,
+    web::{self, service},
+    HttpResponse,
+};
 use serde::Deserialize;
 use serde_json::json;
 use uuid;
@@ -109,6 +115,17 @@ async fn get_general_status(
     Ok(HttpResponse::Ok().status(StatusCode::OK).json(status))
 }
 
+#[get("/score")]
+async fn get_score(
+    db_pool: web::Data<DBPool>,
+    room_id: web::Query<uuid::Uuid>,
+) -> MemeResult<HttpResponse> {
+    let db = db_pool.get()?;
+    let score =
+        web::block(move || GameService::new(&db).calculate_scores(room_id.into_inner())).await??;
+    Ok(HttpResponse::Ok().status(StatusCode::OK).json(score))
+}
+
 pub fn register_router(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("")
@@ -116,6 +133,7 @@ pub fn register_router(cfg: &mut web::ServiceConfig) {
             .service(create_situation)
             .service(react_with_meme)
             .service(vote)
-            .service(get_general_status),
+            .service(get_general_status)
+            .service(get_score),
     );
 }

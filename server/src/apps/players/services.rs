@@ -55,6 +55,10 @@ impl<'a> PlayersService<'a> {
         self.repo.list_players_ids(room_id)
     }
 
+    pub fn list_players(&self, room_id: uuid::Uuid) -> MemeResult<Vec<models::Player>> {
+        self.repo.list_players(room_id)
+    }
+
     pub fn count_players(&self, room_id: uuid::Uuid) -> MemeResult<u8> {
         self.repo.count_players(room_id)
     }

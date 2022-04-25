@@ -30,6 +30,14 @@ impl<'a> MemesService<'a> {
         self.repo.memes_count(round_id)
     }
 
+    pub fn list_memes_by_rounds_ids(&self, rounds_ids: Vec<uuid::Uuid>) -> MemeResult<Vec<models::Meme>> {
+        self.repo.list_memes_by_rounds_ids(rounds_ids)
+    }
+
+    pub fn list_all_round_voters_ids(&self, round_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
+        self.repo.list_all_round_voters_ids(round_id)
+    }
+
     pub fn save_voter(&self, meme_id: uuid::Uuid, voter_id: uuid::Uuid) -> MemeResult<()> {
         let mut meme = self.repo.get_meme(meme_id)?;
 
@@ -41,10 +49,6 @@ impl<'a> MemesService<'a> {
 
         meme.voters_ids.push(voter_id);
         self.repo.update_voters_ids(meme_id, meme.voters_ids)
-    }
-
-    pub fn list_all_round_voters_ids(&self, round_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
-        self.repo.list_all_round_voters_ids(round_id)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////

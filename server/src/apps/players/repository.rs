@@ -45,6 +45,13 @@ impl<'a> PlayersRepository<'a> {
         Ok(players_ids)
     }
 
+    pub fn list_players(&self, room_id: uuid::Uuid) -> MemeResult<Vec<models::Player>> {
+        let players = players::table
+            .filter(players::room_id.eq(room_id))
+            .load(self.db)?;
+        Ok(players)
+    }
+
     pub fn count_players(&self, room_id: uuid::Uuid) -> MemeResult<u8> {
         let count: i64 = players::table
             .count()

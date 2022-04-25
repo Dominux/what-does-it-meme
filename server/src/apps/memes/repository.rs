@@ -64,6 +64,16 @@ impl<'a> MemesRepository<'a> {
         Ok(all_voters_ids)
     }
 
+    pub fn list_memes_by_rounds_ids(
+        &self,
+        rounds_ids: Vec<uuid::Uuid>,
+    ) -> MemeResult<Vec<models::Meme>> {
+        let memes = memes::table
+            .filter(memes::round_id.eq_any(rounds_ids))
+            .load(self.db)?;
+        Ok(memes)
+    }
+
     pub fn memes_count(&self, round_id: uuid::Uuid) -> MemeResult<u8> {
         let count: i64 = memes::table
             .count()

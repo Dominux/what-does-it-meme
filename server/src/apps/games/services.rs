@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     apps::{
         memes::{models::Meme, services::MemesService},
-        players::services::PlayersService,
+        players::{models::Player, services::PlayersService},
         rooms::{services::RoomsService, state_enum::RoomState},
         rounds::{models::Round, services::RoundsService},
     },
@@ -15,6 +17,9 @@ use crate::{
 };
 
 use super::models::GeneralGameStatus;
+
+// score for one meme voter
+const SCORE_COEFF: u16 = 100;
 
 /// Main Game runner to manage rooms, rounds and players
 pub struct GameService<'a> {
@@ -157,7 +162,7 @@ impl<'a> GameService<'a> {
             // Validating if the voter of a meme is it's author
             let meme_reactor_id = self.memes_service.get_meme(meme_id)?.player_id;
             if player_id == meme_reactor_id {
-                return Err(MemeError::PlayerCannotVoteForHisMeme)
+                return Err(MemeError::PlayerCannotVoteForHisMeme);
             }
 
             round.room_id
@@ -254,5 +259,62 @@ impl<'a> GameService<'a> {
             round.state,
             room.expiration_timestamp,
         ))
+    }
+
+    /// Method to calculate scores
+    ///
+    /// Returns dict with players names as keys and their scores as values
+    pub fn calculate_scores(&self, room_id: uuid::Uuid) -> MemeResult<HashMap<String, u16>> {
+        // Getting all the room's rounds and memes
+        let rounds = self.rounds_service.list_rounds(room_id)?;
+        let mut memes = self
+            .memes_service
+            .list_memes_by_rounds_ids(rounds.iter().map(|r| r.id).collect())?;
+
+        // Firstable creating a hashmap with players names and zeros as their scores
+        let mut scores: HashMap<uuid::Uuid, u16> = HashMap::new();
+
+        // Then iterating over rounds
+        for round in rounds {
+            // Poping memes of the round
+            let round_memes: Vec<Meme> = memes
+                .drain_filter(|meme| meme.round_id == round.id)
+                .collect();
+
+            let mut first_score = 0_u16;
+            let mut second_score = 0_u16;
+
+            // Setting score for players, who reacted with a meme
+            for meme in round_memes {
+                let round_score = meme.voters_ids.len() as u16 * SCORE_COEFF;
+                *scores.entry(meme.player_id).or_insert(0) += round_score;
+
+                // Updating first and second scores
+                if round_score > first_score {
+                    second_score = first_score;
+                    first_score = round_score;
+                } else if round_score > second_score {
+                    second_score = round_score;
+                }
+            }
+
+            // Setting score for a situation creator
+            // As an average score of two top round's scores, divided on 2
+            let round_score = (first_score + second_score) / 4;
+            *scores.entry(round.situation_creator_id).or_insert(0) += round_score;
+        }
+
+        // Substituting players ids with their names, cause their ids are sensitive data
+        let mut players = self.players_service.list_players(room_id)?;
+        let mut scores_with_names: HashMap<String, u16> = HashMap::with_capacity(players.len());
+        for (player_id, score) in scores {
+            let index = players
+                .iter()
+                .position(|p| p.id == player_id)
+                .ok_or(MemeError::Unknown)?;
+            let name = players.swap_remove(index).name;
+            scores_with_names.insert(name, score);
+        }
+        Ok(scores_with_names)
     }
 }
