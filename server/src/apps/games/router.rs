@@ -1,10 +1,4 @@
-use actix_web::{
-    get,
-    http::StatusCode,
-    post,
-    web::{self, service},
-    HttpResponse,
-};
+use actix_web::{get, http::StatusCode, post, web, HttpResponse};
 use serde::Deserialize;
 use serde_json::json;
 use uuid;

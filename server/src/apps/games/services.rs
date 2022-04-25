@@ -5,7 +5,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::{
     apps::{
         memes::{models::Meme, services::MemesService},
-        players::{models::Player, services::PlayersService},
+        players::services::PlayersService,
         rooms::{services::RoomsService, state_enum::RoomState},
         rounds::{models::Round, services::RoundsService},
     },

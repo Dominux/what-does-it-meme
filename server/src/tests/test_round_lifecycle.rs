@@ -1,4 +1,5 @@
 use actix_web::{test, web, App};
+use diesel::prelude::*;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use serde_json::json;
@@ -14,8 +15,8 @@ use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rooms::services::RoomsService;
 use crate::apps::rooms::state_enum::RoomState;
-use crate::apps::rounds::models::Round;
 use crate::apps::rounds::repository::RoundsRepository;
+use crate::apps::rounds::schema::rounds;
 use crate::apps::rounds::services::RoundsService;
 use crate::apps::rounds::state_enum::RoundState;
 use crate::common::{
@@ -545,14 +546,12 @@ async fn test_vote() {
 
         // 8. Trying to vote last time in the last round
         // (consider game to become ended)
-        RoundsRepository::new(db)
-            .update_round(Round {
-                id: new_round_id,
-                room_id: room.id,
-                state: RoundState::Voting,
-                situation: None,
-                situation_creator_id: situation_creator.id,
-            })
+        diesel::update(rounds::table.filter(rounds::id.eq(new_round_id)))
+            .set((
+                rounds::state.eq(RoundState::Voting),
+                rounds::situation_creator_id.eq(situation_creator.id),
+            ))
+            .execute(db)
             .expect("Error on round updating");
         let memes = [(all_players[0].id, "meme 1"), (all_players[1].id, "meme 2")].map(
             |(player_id, meme_link)| {

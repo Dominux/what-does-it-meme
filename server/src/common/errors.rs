@@ -26,7 +26,7 @@ pub enum MemeError {
     #[error("Another player in the room already has this name")]
     DuplicatedName,
 
-    #[error("Situation creator cannot `{0}`")]
+    #[error("Situation creator cannot {0}")]
     SituationCreatorCant(String),
 
     #[error("You can't create situation at this round stage")]

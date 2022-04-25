@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: test.Dockerfile
       context: .
-    command: cargo test
+    command: cargo test tests::test_round_lifecycle::test_vote
     depends_on:
       - db
     env_file:
