@@ -67,6 +67,10 @@ impl<'a> RoundsService<'a> {
 
         // Saving it and updating state
         round.situation = Some(situation);
+        self.set_to_choose_memes(round)
+    }
+
+    pub fn set_to_choose_memes(&self, mut round: models::Round) -> MemeResult<()> {
         round.set_to_choose_memes()?;
 
         self.repo.update_round(round.clone())?;

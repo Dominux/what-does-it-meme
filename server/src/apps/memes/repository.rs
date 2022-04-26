@@ -55,6 +55,13 @@ impl<'a> MemesRepository<'a> {
         Ok(meme)
     }
 
+    pub fn list_memes(&self, round_id: uuid::Uuid) -> MemeResult<Vec<models::Meme>> {
+        let memes = memes::table
+            .filter(memes::round_id.eq(round_id))
+            .load(self.db)?;
+        Ok(memes)
+    }
+
     pub fn list_all_round_voters_ids(&self, round_id: uuid::Uuid) -> MemeResult<Vec<uuid::Uuid>> {
         let all_voters_ids = memes::table
             .select(memes::voters_ids)

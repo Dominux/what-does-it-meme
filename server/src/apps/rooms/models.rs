@@ -51,4 +51,14 @@ impl Room {
             _ => Err(MemeError::NotAllowedStateTransition),
         }
     }
+
+    #[inline]
+    pub fn is_expired(&self) -> bool {
+        self.expiration_timestamp.elapsed().is_err()
+    }
+
+    #[inline]
+    pub fn is_ended(&self) -> bool {
+        matches!(self.state, RoomState::Ended)
+    }
 }

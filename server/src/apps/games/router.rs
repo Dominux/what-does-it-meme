@@ -94,20 +94,16 @@ async fn vote(db_pool: web::Data<DBPool>, body: web::Json<VoteJSON>) -> MemeResu
     Ok(HttpResponse::Ok().status(StatusCode::NO_CONTENT).finish())
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-///     Statuses
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-#[get("/status")]
-async fn get_general_status(
-    db_pool: web::Data<DBPool>,
-    room_id: web::Query<uuid::Uuid>,
-) -> MemeResult<HttpResponse> {
-    let db = db_pool.get()?;
-    let status = web::block(move || GameService::new(&db).get_general_status(room_id.into_inner()))
-        .await??;
-    Ok(HttpResponse::Ok().status(StatusCode::OK).json(status))
-}
+// #[get("/status")]
+// async fn get_status(
+//     db_pool: web::Data<DBPool>,
+//     room_id: web::Query<uuid::Uuid>,
+// ) -> MemeResult<HttpResponse> {
+//     let db = db_pool.get()?;
+//     let status = web::block(move || GameService::new(&db).get_status(room_id.into_inner()))
+//         .await??;
+//     Ok(HttpResponse::Ok().status(StatusCode::OK).json(status))
+// }
 
 #[get("/score")]
 async fn get_score(
@@ -127,7 +123,7 @@ pub fn register_router(cfg: &mut web::ServiceConfig) {
             .service(create_situation)
             .service(react_with_meme)
             .service(vote)
-            .service(get_general_status)
+            // .service(get_status)
             .service(get_score),
     );
 }

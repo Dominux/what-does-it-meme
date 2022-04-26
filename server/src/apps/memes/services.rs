@@ -30,7 +30,14 @@ impl<'a> MemesService<'a> {
         self.repo.memes_count(round_id)
     }
 
-    pub fn list_memes_by_rounds_ids(&self, rounds_ids: Vec<uuid::Uuid>) -> MemeResult<Vec<models::Meme>> {
+    pub fn list_memes(&self, round_id: uuid::Uuid) -> MemeResult<Vec<models::Meme>> {
+        self.repo.list_memes(round_id)
+    }
+
+    pub fn list_memes_by_rounds_ids(
+        &self,
+        rounds_ids: Vec<uuid::Uuid>,
+    ) -> MemeResult<Vec<models::Meme>> {
         self.repo.list_memes_by_rounds_ids(rounds_ids)
     }
 

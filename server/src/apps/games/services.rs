@@ -6,8 +6,8 @@ use crate::{
     apps::{
         memes::{models::Meme, services::MemesService},
         players::services::PlayersService,
-        rooms::{services::RoomsService, state_enum::RoomState},
-        rounds::{models::Round, services::RoundsService},
+        rooms::{models::Room, services::RoomsService, state_enum::RoomState},
+        rounds::{models::Round, services::RoundsService, state_enum::RoundState},
     },
     common::{
         config::Config,
@@ -16,7 +16,7 @@ use crate::{
     },
 };
 
-use super::models::GeneralGameStatus;
+use super::models::{GameStatus, GameStatusRound, GameStatusRoundMeme};
 
 // score for one meme voter
 const SCORE_COEFF: u16 = 100;
@@ -178,14 +178,20 @@ impl<'a> GameService<'a> {
             .list_all_round_voters_ids(round_id)?
             .len() as u8;
         if limit_voters_amount == actual_voters_amount {
-            self.rounds_service.end_round(round_id)?;
-
-            // Creating next round, if it's None - then we need stop the game
-            if matches!(self.next_round(room_id)?, None) {
-                self.end_game(room_id)?
-            }
+            self.end_round(round_id, room_id)?
         }
         Ok(())
+    }
+
+    fn end_round(&self, round_id: uuid::Uuid, room_id: uuid::Uuid) -> MemeResult<()> {
+        self.rounds_service.end_round(round_id)?;
+
+        // Creating next round, if it's None - then we need stop the game
+        if matches!(self.next_round(room_id)?, None) {
+            self.end_game(room_id)
+        } else {
+            Ok(())
+        }
     }
 
     /// Creating next round
@@ -226,39 +232,12 @@ impl<'a> GameService<'a> {
     /// End the game
     fn end_game(&self, room_id: uuid::Uuid) -> MemeResult<()> {
         let mut room = self.rooms_service.get_room_by_id(room_id)?;
-        // TODO: add logic
 
         // Ending
         room.end_game()?;
         self.rooms_service.update_game(room)?;
 
         Ok(())
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-    /// Statuses
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    /// Returns general game status
-    pub fn get_general_status(&self, room_id: uuid::Uuid) -> MemeResult<GeneralGameStatus> {
-        let room = self.rooms_service.get_room_by_id(room_id)?;
-
-        // Returning 404 if state isn't Started
-        if !matches!(room.state, RoomState::Started) {
-            return Err(MemeError::NotFound);
-        }
-
-        let round_number = self.rounds_service.get_rounds_amount(room_id)?;
-
-        let round = self
-            .rounds_service
-            .get_round(room.current_round_id.ok_or(MemeError::Unknown)?)?;
-
-        Ok(GeneralGameStatus::new(
-            round_number,
-            round.state,
-            room.expiration_timestamp,
-        ))
     }
 
     /// Method to calculate scores
@@ -316,5 +295,153 @@ impl<'a> GameService<'a> {
             scores_with_names.insert(name, score);
         }
         Ok(scores_with_names)
+    }
+}
+
+pub struct StatusService<'a> {
+    game_service: GameService<'a>,
+    rooms_service: RoomsService<'a>,
+    rounds_service: RoundsService<'a>,
+    players_service: PlayersService<'a>,
+    memes_service: MemesService<'a>,
+}
+
+impl<'a> StatusService<'a> {
+    pub fn new(db: &'a DBConnection) -> Self {
+        Self {
+            game_service: GameService::new(db),
+            rooms_service: RoomsService::new(db),
+            rounds_service: RoundsService::new(db),
+            players_service: PlayersService::new(db),
+            memes_service: MemesService::new(db),
+        }
+    }
+
+    #[inline]
+    /// Main function to get status
+    pub(self) fn get_status(&self, room: Room) -> MemeResult<GameStatus> {
+        match room.state {
+            RoomState::NotStarted => self.get_not_started_game_status(room),
+            RoomState::Started => self.get_started_game_status(room),
+            RoomState::Ended => self.get_ended_game_status(room),
+        }
+    }
+
+    #[inline]
+    fn get_not_started_game_status(&self, room: Room) -> MemeResult<GameStatus> {
+        let players_names = self
+            .players_service
+            .list_players(room.id)?
+            .into_iter()
+            .map(|p| p.name)
+            .collect();
+
+        let game_status =
+            GameStatus::new(room.state, players_names, None, room.expiration_timestamp);
+        Ok(game_status)
+    }
+
+    #[inline]
+    fn get_started_game_status(&self, mut room: Room) -> MemeResult<GameStatus> {
+        // Now we are indide the game and it's the only place where we check
+        // if the round stage has overtimed. On it we gotta make a force transition
+        // to the next one (or to the next round if this one has ended).
+        // It's a native lifecycle control
+        if room.is_expired() {
+            let round = self
+                .rounds_service
+                .get_round(room.current_round_id.ok_or(MemeError::Unknown)?)?;
+            match round.state {
+                RoundState::SituationCreation => self.rounds_service.set_to_choose_memes(round)?,
+                RoundState::ChoosingMemes => self.rounds_service.set_to_vote(round.id)?,
+                RoundState::Voting => self.game_service.end_round(round.id, room.id)?,
+                _ => return Err(MemeError::Unknown),
+            };
+
+            // Refreshing room from db
+            room = self.rooms_service.get_room_by_id(room.id)?;
+        }
+
+        // If game is ended
+        if room.is_ended() {
+            return self.get_ended_game_status(room);
+        }
+
+        // Getting all the stuff we need
+        let rounds = self.rounds_service.list_rounds(room.id)?;
+        let round_number = rounds.len() as u8;
+        let round = {
+            let current_round_id = room.current_round_id.ok_or(MemeError::Unknown)?;
+            rounds
+                .into_iter()
+                .filter(|r| r.id == current_round_id)
+                .next()
+                .ok_or(MemeError::Unknown)?
+        };
+        let players = self.players_service.list_players(room.id)?;
+        let situation_creator_name = players
+            .iter()
+            .filter(|p| p.id == round.situation_creator_id)
+            .next()
+            .ok_or(MemeError::Unknown)?
+            .name
+            .clone();
+        let players_names: Vec<String> = players.iter().map(|p| p.name.clone()).collect();
+
+        // Matching round state
+        let game_status_round = match round.state {
+            RoundState::SituationCreation => GameStatusRound::new(
+                round_number,
+                round.state,
+                situation_creator_name,
+                None,
+                None,
+                None,
+            ),
+
+            RoundState::ChoosingMemes => {
+                // collecting players that already choosed memes
+                let done_players_names = self
+                    .memes_service
+                    .list_memes(round.id)?
+                    .into_iter()
+                    .map(|m| {
+                        players
+                            .iter()
+                            .find(|p| p.id == m.player_id)
+                            .ok_or(MemeError::Unknown)
+                            .map(|p| p.name.clone())
+                    })
+                    .collect::<MemeResult<_>>()?;
+                GameStatusRound::new(
+                    round_number,
+                    round.state,
+                    situation_creator_name,
+                    round.situation,
+                    None,
+                    Some(done_players_names),
+                )
+            }
+
+            RoundState::Voting => {
+                // let memes = self.memes_service.list_memes(round.id)?.into_iter().map(|m| GameStatusRoundMeme::new(m.link, None, None));
+                unimplemented!()
+            }
+
+            RoundState::Ended => unreachable!(),
+        };
+
+        let game_status = GameStatus::new(
+            room.state,
+            players_names,
+            Some(game_status_round),
+            room.expiration_timestamp,
+        );
+        Ok(game_status)
+    }
+
+    #[inline]
+    fn get_ended_game_status(&self, room: Room) -> MemeResult<GameStatus> {
+        unimplemented!()
     }
 }

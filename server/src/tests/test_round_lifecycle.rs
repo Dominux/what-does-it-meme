@@ -105,10 +105,10 @@ async fn test_create_situation() {
         assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
 
         // Checking the round state
-        let round = game_service
-            .get_general_status(room.id)
-            .expect("Error on getting general status");
-        assert!(matches!(round.round_state, RoundState::ChoosingMemes));
+        let round = RoundsRepository::new(db)
+            .get_round(round.id)
+            .expect("Error on refreshing round");
+        assert!(matches!(round.state, RoundState::ChoosingMemes));
     }
 
     // 3. Trying to create situation in another round stage
