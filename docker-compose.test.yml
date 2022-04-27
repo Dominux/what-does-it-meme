@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: test.Dockerfile
       context: .
-    command: cargo test -- --test-threads=1
+    command: cargo test tests::test_status_and_score -- --test-threads=1
     depends_on:
       - db
     env_file:

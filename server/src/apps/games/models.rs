@@ -1,10 +1,10 @@
 use std::time::SystemTime;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::apps::{rooms::state_enum::RoomState, rounds::state_enum::RoundState};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GameStatusRoundMeme {
     pub link: String,
     pub voters_names: Option<Vec<String>>,
@@ -25,7 +25,7 @@ impl GameStatusRoundMeme {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GameStatusRound {
     pub round_number: u8,
     pub round_state: RoundState,
@@ -55,7 +55,7 @@ impl GameStatusRound {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GameStatus {
     pub state: RoomState,
     pub players_names: Vec<String>,

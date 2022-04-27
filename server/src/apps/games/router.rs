@@ -98,26 +98,31 @@ async fn vote(db_pool: web::Data<DBPool>, body: web::Json<VoteJSON>) -> MemeResu
     Ok(HttpResponse::Ok().status(StatusCode::NO_CONTENT).finish())
 }
 
-#[get("/status")]
-async fn get_status(
-    db_pool: web::Data<DBPool>,
-    room_id: web::Query<uuid::Uuid>,
-) -> MemeResult<HttpResponse> {
-    let db = db_pool.get()?;
-    let status =
-        web::block(move || StatusService::new(&db).get_status(room_id.into_inner())).await??;
-    Ok(HttpResponse::Ok().status(StatusCode::OK).json(status))
+#[derive(Deserialize)]
+struct QueryRoom {
+    room_id: uuid::Uuid,
 }
 
 #[get("/score")]
 async fn get_score(
     db_pool: web::Data<DBPool>,
-    room_id: web::Query<uuid::Uuid>,
+    query_room: web::Query<QueryRoom>,
 ) -> MemeResult<HttpResponse> {
     let db = db_pool.get()?;
     let score =
-        web::block(move || GameService::new(&db).calculate_scores(room_id.into_inner())).await??;
+        web::block(move || StatusService::new(&db).calculate_scores(query_room.room_id)).await??;
     Ok(HttpResponse::Ok().status(StatusCode::OK).json(score))
+}
+
+#[get("/status")]
+async fn get_status(
+    db_pool: web::Data<DBPool>,
+    query_room: web::Query<QueryRoom>,
+) -> MemeResult<HttpResponse> {
+    let db = db_pool.get()?;
+    let status =
+        web::block(move || StatusService::new(&db).get_status(query_room.room_id)).await??;
+    Ok(HttpResponse::Ok().status(StatusCode::OK).json(status))
 }
 
 pub fn register_router(cfg: &mut web::ServiceConfig) {
@@ -127,7 +132,7 @@ pub fn register_router(cfg: &mut web::ServiceConfig) {
             .service(create_situation)
             .service(react_with_meme)
             .service(vote)
-            // .service(get_status)
-            .service(get_score),
+            .service(get_score)
+            .service(get_status),
     );
 }

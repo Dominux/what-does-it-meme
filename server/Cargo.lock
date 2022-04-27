@@ -2115,6 +2115,7 @@ name = "what_does_it_meme"
 version = "0.1.0"
 dependencies = [
  "actix-cors",
+ "actix-http",
  "actix-web",
  "async-trait",
  "diesel",
