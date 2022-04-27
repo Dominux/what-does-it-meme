@@ -53,6 +53,9 @@ pub enum MemeError {
     #[error("Memes scrapping error")]
     MemesScrapingError,
 
+    #[error("Too many rooms")]
+    TooManyRooms,
+
     #[error("Unknown")]
     Unknown,
 }
@@ -75,6 +78,7 @@ impl ResponseError for MemeError {
             Self::AlreadyVoted => StatusCode::LOCKED,
             Self::MemeIsNotInHand => StatusCode::CONFLICT,
             Self::MemesScrapingError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::TooManyRooms => StatusCode::FORBIDDEN,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

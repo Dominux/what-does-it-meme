@@ -1,10 +1,12 @@
 use actix_web::{test, web, App};
 use lazy_static::lazy_static;
 use serde_json::json;
+use diesel::prelude::*;
 
 use crate::apps::players::models::InPlayer;
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
+use crate::apps::rooms::schema::rooms;
 use crate::apps::rooms::services::RoomsService;
 use crate::common::{
     config::Config,
@@ -30,6 +32,11 @@ async fn test_add_player() {
 
     // Getting db
     let db = &DB_POOL.get().expect("Can't get db connection");
+
+    // Cleaning rooms
+    diesel::delete(rooms::table)
+        .execute(db)
+        .expect("Error on deleting rooms");
 
     {
         // Creating room

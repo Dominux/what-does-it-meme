@@ -30,6 +30,9 @@ struct EnvConfig {
     #[envconfig(from = "DB_HOST")]
     pub db_host: String,
 
+    #[envconfig(from = "MAX_ROOMS_COUNT")]
+    pub max_rooms_count: u8,
+
     #[envconfig(from = "PLAYERS_MINIMUM")]
     pub players_minimum: u8,
 
@@ -64,6 +67,7 @@ pub struct Config {
     pub db_password: String,
     pub db_name: String,
     pub db_host: String,
+    pub max_rooms_count: u8,
     pub players_minimum: u8,
     pub players_limit: i64,
     pub rounds_amount: u8,
@@ -117,6 +121,7 @@ impl Config {
             db_password: env_config.db_password,
             db_name: env_config.db_name,
             db_host: env_config.db_host,
+            max_rooms_count: env_config.max_rooms_count,
             players_minimum: env_config.players_minimum,
             players_limit: env_config.players_limit,
             rounds_amount: env_config.rounds_amount,

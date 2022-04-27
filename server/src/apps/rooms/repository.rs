@@ -1,9 +1,11 @@
 use std::time::SystemTime;
 
+use actix_web::cookie::time::Duration;
 use diesel::prelude::*;
 use uuid;
 
 use crate::apps::rooms::models;
+use crate::apps::rooms::state_enum::RoomState;
 use crate::common::db::DBConnection;
 use crate::common::errors::MemeResult;
 
@@ -23,6 +25,13 @@ impl<'a> RoomsRepository<'a> {
         diesel::insert_into(rooms).values(&room).execute(self.db)?;
 
         Ok(room)
+    }
+
+    pub fn get_rooms_count(&self) -> MemeResult<u8> {
+        use crate::apps::rooms::schema::rooms;
+
+        let count = rooms::table.count().first::<i64>(self.db)? as u8;
+        Ok(count)
     }
 
     pub fn get_room(&self, uid: uuid::Uuid) -> MemeResult<models::Room> {
@@ -56,6 +65,35 @@ impl<'a> RoomsRepository<'a> {
         diesel::update(rooms.filter(id.eq(room_id)))
             .set((expiration_timestamp.eq(et),))
             .execute(self.db)?;
+
+        Ok(())
+    }
+
+    pub fn delete_expired_rooms(&self) -> MemeResult<()> {
+        use crate::apps::rooms::schema::rooms;
+
+        let now = SystemTime::now();
+
+        let not_started_predicate = rooms::state
+            .eq(RoomState::NotStarted)
+            .and(rooms::expiration_timestamp.le(now));
+        let ended_predicate = rooms::state
+            .eq(RoomState::Ended)
+            .and(rooms::expiration_timestamp.le(now));
+
+        // Also deleting all started games, that have been expired af (e.g for a day in our case)
+        let started_predicate = rooms::state
+            .eq(RoomState::Started)
+            .and(rooms::expiration_timestamp.le(now - Duration::DAY));
+
+        diesel::delete(
+            rooms::table.filter(
+                not_started_predicate
+                    .or(ended_predicate)
+                    .or(started_predicate),
+            ),
+        )
+        .execute(self.db)?;
 
         Ok(())
     }
