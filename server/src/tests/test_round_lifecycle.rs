@@ -1,5 +1,4 @@
 use actix_web::{test, web, App};
-use diesel::prelude::*;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use serde_json::json;
@@ -8,15 +7,12 @@ use crate::apps::games::router::register_router as games_router;
 use crate::apps::games::services::GameService;
 use crate::apps::memes::models::Meme;
 use crate::apps::memes::repository::MemesRepository;
-use crate::apps::memes::services::MemesService;
 use crate::apps::players::models::{InPlayer, Player};
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
 use crate::apps::rooms::repository::RoomsRepository;
 use crate::apps::rooms::services::RoomsService;
-use crate::apps::rooms::state_enum::RoomState;
 use crate::apps::rounds::repository::RoundsRepository;
-use crate::apps::rounds::schema::rounds;
 use crate::apps::rounds::services::RoundsService;
 use crate::apps::rounds::state_enum::RoundState;
 use crate::common::{
@@ -516,7 +512,6 @@ async fn test_vote() {
     }
 
     // 7. Trying to vote the last time
-    // (consider round to become ended and to get the next one)
     {
         let req = {
             let body = json!({
@@ -537,59 +532,6 @@ async fn test_vote() {
         let round = RoundsRepository::new(db)
             .get_round(round.id)
             .expect("Error on getting round");
-        assert!(round.is_ended());
-        let new_round_id = RoomsRepository::new(db)
-            .get_room(room.id)
-            .expect("Error on getting room")
-            .current_round_id
-            .expect("Expected Some, got None");
-
-        // 8. Trying to vote last time in the last round
-        // (consider game to become ended)
-        diesel::update(rounds::table.filter(rounds::id.eq(new_round_id)))
-            .set((
-                rounds::state.eq(RoundState::Voting),
-                rounds::situation_creator_id.eq(situation_creator.id),
-            ))
-            .execute(db)
-            .expect("Error on round updating");
-        let memes = [(all_players[0].id, "meme 1"), (all_players[1].id, "meme 2")].map(
-            |(player_id, meme_link)| {
-                let meme = Meme::new(new_round_id, player_id, meme_link.to_string());
-                memes_repo
-                    .save_meme_if_not_exists(meme.clone())
-                    .expect("Error on saving meme");
-                meme
-            },
-        );
-        MemesService::new(db)
-            .save_voter(memes[0].id, memes[1].player_id)
-            .expect("Error on saving vote");
-
-        let req = {
-            let body = json!({
-                "meme_id": memes[1].id,
-                "player_id": memes[0].player_id,
-                "round_id": new_round_id
-            });
-            test::TestRequest::post()
-                .uri("/games/vote")
-                .set_json(&body)
-                .to_request()
-        };
-        let response = test::call_service(&mut app, req).await;
-
-        assert_eq!(response.status(), 204, "{:?}", response.into_body());
-
-        // Checking if the game has ended
-        let round = RoundsRepository::new(db)
-            .get_round(new_round_id)
-            .expect("Error on getting round");
-        assert!(round.is_ended());
-        let room = RoomsRepository::new(db)
-            .get_room(room.id)
-            .expect("Error on getting room");
-        assert!(matches!(room.current_round_id, None));
-        assert!(matches!(room.state, RoomState::Ended));
+        assert!(round.is_showing_results());
     }
 }

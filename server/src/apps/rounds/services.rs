@@ -92,6 +92,17 @@ impl<'a> RoundsService<'a> {
             .update_room_expiration_timestamp(round.room_id, expiration_timestamp)
     }
 
+    pub fn set_to_show_results(&self, round_id: uuid::Uuid) -> MemeResult<()> {
+        let mut round = self.repo.get_round(round_id)?;
+        round.set_to_show_results()?;
+        self.repo.update_round(round.clone())?;
+
+        // Updating room's expiration timestamp
+        let expiration_timestamp = SystemTime::now() + Config::new()?.time_to_show_results;
+        RoomsRepository::new(self.repo.db)
+            .update_room_expiration_timestamp(round.room_id, expiration_timestamp)
+    }
+
     pub fn end_round(&self, round_id: uuid::Uuid) -> MemeResult<()> {
         let mut round = self.repo.get_round(round_id)?;
         round.end_round()?;

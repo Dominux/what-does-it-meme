@@ -76,6 +76,7 @@ pub struct Config {
     pub time_to_create_situation: Duration,
     pub time_to_choose_memes: Duration,
     pub time_to_vote: Duration,
+    pub time_to_show_results: Duration,
     pub time_until_room_deletion: Duration,
 
     ///////////////////////////////////////
@@ -100,7 +101,9 @@ impl Config {
         let time_to_choose_memes =
             Duration::from_secs(Self::get_env_var::<u64>("TIME_TO_CHOOSE_MEMES_IN_SECONDS")?);
         let time_to_vote =
-            Duration::from_secs(Self::get_env_var::<u64>("TIME_TO_VOTE_IN_SECONDS")? * 60);
+            Duration::from_secs(Self::get_env_var::<u64>("TIME_TO_VOTE_IN_SECONDS")?);
+        let time_to_show_results =
+            Duration::from_secs(Self::get_env_var::<u64>("TIME_TO_SHOW_RESULTS_IN_SECONDS")?);
         let time_until_room_deletion = Duration::from_secs(
             Self::get_env_var::<u64>("TIME_UNTIL_ROOM_DELETION_IN_MINUTES")? * 60,
         );
@@ -126,6 +129,7 @@ impl Config {
             time_to_create_situation,
             time_to_choose_memes,
             time_to_vote,
+            time_to_show_results,
             time_until_room_deletion,
         })
     }

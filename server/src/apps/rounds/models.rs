@@ -45,21 +45,36 @@ impl Round {
         }
     }
 
-    pub fn end_round(&mut self) -> MemeResult<()> {
+    pub fn set_to_show_results(&mut self) -> MemeResult<()> {
         match self.state {
-            RoundState::Voting => Ok(self.state = RoundState::Ended),
+            RoundState::Voting => Ok(self.state = RoundState::ShowingResults),
             _ => Err(MemeError::NotAllowedStateTransition),
         }
     }
 
+    pub fn end_round(&mut self) -> MemeResult<()> {
+        match self.state {
+            RoundState::ShowingResults => Ok(self.state = RoundState::Ended),
+            _ => Err(MemeError::NotAllowedStateTransition),
+        }
+    }
+
+    #[inline]
     pub fn is_choosing_memes(&self) -> bool {
         matches!(self.state, RoundState::ChoosingMemes)
     }
 
+    #[inline]
     pub fn is_voting(&self) -> bool {
         matches!(self.state, RoundState::Voting)
     }
 
+    #[inline]
+    pub fn is_showing_results(&self) -> bool {
+        matches!(self.state, RoundState::ShowingResults)
+    }
+
+    #[inline]
     pub fn is_ended(&self) -> bool {
         matches!(self.state, RoundState::Ended)
     }

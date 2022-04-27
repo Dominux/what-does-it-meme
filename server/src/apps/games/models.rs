@@ -31,8 +31,8 @@ pub struct GameStatusRound {
     pub round_state: RoundState,
     pub situation_creator_name: String,
     pub situation: Option<String>,
-    pub memes: Option<GameStatusRoundMeme>,
-    pub done_players_names: Option<Vec<String>>,
+    pub memes: Option<Vec<GameStatusRoundMeme>>,
+    pub reacted_players_names: Option<Vec<String>>,
 }
 
 impl GameStatusRound {
@@ -41,8 +41,8 @@ impl GameStatusRound {
         round_state: RoundState,
         situation_creator_name: String,
         situation: Option<String>,
-        memes: Option<GameStatusRoundMeme>,
-        done_players_names: Option<Vec<String>>,
+        memes: Option<Vec<GameStatusRoundMeme>>,
+        reacted_players_names: Option<Vec<String>>,
     ) -> Self {
         Self {
             round_number,
@@ -50,7 +50,7 @@ impl GameStatusRound {
             situation_creator_name,
             situation,
             memes,
-            done_players_names,
+            reacted_players_names,
         }
     }
 }

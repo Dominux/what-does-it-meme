@@ -5,7 +5,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::{
     apps::{
         memes::{models::Meme, services::MemesService},
-        players::services::PlayersService,
+        players::{models::Player, services::PlayersService},
         rooms::{models::Room, services::RoomsService, state_enum::RoomState},
         rounds::{models::Round, services::RoundsService, state_enum::RoundState},
     },
@@ -178,7 +178,7 @@ impl<'a> GameService<'a> {
             .list_all_round_voters_ids(round_id)?
             .len() as u8;
         if limit_voters_amount == actual_voters_amount {
-            self.end_round(round_id, room_id)?
+            self.rounds_service.set_to_show_results(round_id)?
         }
         Ok(())
     }
@@ -317,9 +317,10 @@ impl<'a> StatusService<'a> {
         }
     }
 
-    #[inline]
     /// Main function to get status
-    pub(self) fn get_status(&self, room: Room) -> MemeResult<GameStatus> {
+    pub fn get_status(&self, room_id: uuid::Uuid) -> MemeResult<GameStatus> {
+        let room = self.rooms_service.get_room_by_id(room_id)?;
+
         match room.state {
             RoomState::NotStarted => self.get_not_started_game_status(room),
             RoomState::Started => self.get_started_game_status(room),
@@ -354,8 +355,9 @@ impl<'a> StatusService<'a> {
             match round.state {
                 RoundState::SituationCreation => self.rounds_service.set_to_choose_memes(round)?,
                 RoundState::ChoosingMemes => self.rounds_service.set_to_vote(round.id)?,
-                RoundState::Voting => self.game_service.end_round(round.id, room.id)?,
-                _ => return Err(MemeError::Unknown),
+                RoundState::Voting => self.rounds_service.set_to_show_results(round.id)?,
+                RoundState::ShowingResults => self.game_service.end_round(round.id, room.id)?,
+                RoundState::Ended => return Err(MemeError::Unknown),
             };
 
             // Refreshing room from db
@@ -390,6 +392,7 @@ impl<'a> StatusService<'a> {
 
         // Matching round state
         let game_status_round = match round.state {
+            // Here we gotta show only situation_creator_name
             RoundState::SituationCreation => GameStatusRound::new(
                 round_number,
                 round.state,
@@ -399,19 +402,14 @@ impl<'a> StatusService<'a> {
                 None,
             ),
 
+            // Here we gotta show already reacted names and situation
             RoundState::ChoosingMemes => {
                 // collecting players that already choosed memes
-                let done_players_names = self
+                let reacted_players_names = self
                     .memes_service
                     .list_memes(round.id)?
                     .into_iter()
-                    .map(|m| {
-                        players
-                            .iter()
-                            .find(|p| p.id == m.player_id)
-                            .ok_or(MemeError::Unknown)
-                            .map(|p| p.name.clone())
-                    })
+                    .map(|m| self.find_player_name(&players, m.player_id))
                     .collect::<MemeResult<_>>()?;
                 GameStatusRound::new(
                     round_number,
@@ -419,15 +417,59 @@ impl<'a> StatusService<'a> {
                     situation_creator_name,
                     round.situation,
                     None,
-                    Some(done_players_names),
+                    Some(reacted_players_names),
                 )
             }
 
+            // Here we gotta show memes and already voted players names
             RoundState::Voting => {
-                // let memes = self.memes_service.list_memes(round.id)?.into_iter().map(|m| GameStatusRoundMeme::new(m.link, None, None));
-                unimplemented!()
+                let memes = self
+                    .memes_service
+                    .list_memes(round.id)?
+                    .into_iter()
+                    .map(|m| {
+                        Ok(GameStatusRoundMeme::new(
+                            m.link,
+                            Some(self.get_memes_voters_names(m.voters_ids, &players)?),
+                            None,
+                        ))
+                    })
+                    .collect::<MemeResult<_>>()?;
+                GameStatusRound::new(
+                    round_number,
+                    round.state,
+                    situation_creator_name,
+                    round.situation,
+                    Some(memes),
+                    None,
+                )
             }
 
+            // Here we gotta show all the info for the round
+            RoundState::ShowingResults => {
+                let memes = self
+                    .memes_service
+                    .list_memes(round.id)?
+                    .into_iter()
+                    .map(|m| {
+                        Ok(GameStatusRoundMeme::new(
+                            m.link,
+                            Some(self.get_memes_voters_names(m.voters_ids, &players)?),
+                            Some(self.find_player_name(&players, m.player_id)?),
+                        ))
+                    })
+                    .collect::<MemeResult<_>>()?;
+                GameStatusRound::new(
+                    round_number,
+                    round.state,
+                    situation_creator_name,
+                    round.situation,
+                    Some(memes),
+                    None,
+                )
+            }
+
+            // Here is an unreachable place
             RoundState::Ended => unreachable!(),
         };
 
@@ -442,6 +484,31 @@ impl<'a> StatusService<'a> {
 
     #[inline]
     fn get_ended_game_status(&self, room: Room) -> MemeResult<GameStatus> {
-        unimplemented!()
+        self.get_not_started_game_status(room)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ///     Helpers
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    #[inline]
+    fn find_player_name(&self, players: &Vec<Player>, id: uuid::Uuid) -> MemeResult<String> {
+        players
+            .iter()
+            .find(|p| p.id == id)
+            .ok_or(MemeError::Unknown)
+            .map(|p| p.name.clone())
+    }
+
+    #[inline]
+    fn get_memes_voters_names(
+        &self,
+        voters_ids: Vec<uuid::Uuid>,
+        players: &Vec<Player>,
+    ) -> MemeResult<Vec<String>> {
+        voters_ids
+            .into_iter()
+            .map(|voter_id| self.find_player_name(players, voter_id))
+            .collect()
     }
 }
