@@ -1,21 +1,22 @@
+#![feature(drain_filter)]
 #[macro_use]
 extern crate diesel;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use envconfig::Envconfig;
 
-use apps::rooms::router::register_router as rooms_router;
+use apps::games::router::register_router as games_router;
 use apps::players::router::register_router as players_router;
-use common::db;
+use apps::rooms::router::register_router as rooms_router;
 use common::config::Config;
+use common::db;
 
-mod common;
 mod apps;
+mod common;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let config = Config::init_from_env().unwrap();
+    let config = Config::new().unwrap();
     let db_pool = db::get_dbpool(config.get_db_uri());
 
     HttpServer::new(move || {
@@ -26,13 +27,12 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .service(web::scope("rooms").configure(rooms_router))
             .service(web::scope("players").configure(players_router))
+            .service(web::scope("games").configure(games_router))
     })
     .bind((config.host, config.port))?
     .run()
     .await
 }
 
-
 #[cfg(test)]
 mod tests;
-

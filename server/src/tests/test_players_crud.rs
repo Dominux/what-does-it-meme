@@ -1,11 +1,12 @@
 use actix_web::{test, web, App};
-use envconfig::Envconfig;
 use lazy_static::lazy_static;
 use serde_json::json;
+use diesel::prelude::*;
 
-use crate::apps::players::models::{self, InPlayer};
+use crate::apps::players::models::InPlayer;
 use crate::apps::players::router::register_router as players_router;
 use crate::apps::players::services::PlayersService;
+use crate::apps::rooms::schema::rooms;
 use crate::apps::rooms::services::RoomsService;
 use crate::common::{
     config::Config,
@@ -14,7 +15,7 @@ use crate::common::{
 
 lazy_static! {
     static ref DB_POOL: DBPool = {
-        let config = Config::init_from_env().unwrap();
+        let config = Config::new().unwrap();
         get_dbpool(config.get_db_uri())
     };
     static ref NAMES: [&'static str; 6] =
@@ -22,7 +23,7 @@ lazy_static! {
 }
 
 #[actix_web::test]
-async fn test_players_crud() {
+async fn test_add_player() {
     // Creating the app
     let app = App::new()
         .app_data(web::Data::new(DB_POOL.clone()))
@@ -31,6 +32,11 @@ async fn test_players_crud() {
 
     // Getting db
     let db = &DB_POOL.get().expect("Can't get db connection");
+
+    // Cleaning rooms
+    diesel::delete(rooms::table)
+        .execute(db)
+        .expect("Error on deleting rooms");
 
     {
         // Creating room
@@ -52,10 +58,6 @@ async fn test_players_crud() {
             let response = test::call_service(&mut app, req).await;
 
             assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
-
-            let player: models::Player = test::read_body_json(response).await;
-            assert_eq!(player.name, in_player["name"]);
-            assert_eq!(player.room_id, room.id);
         };
 
         // 2. Trying to add more then limit players
@@ -67,7 +69,7 @@ async fn test_players_crud() {
                     room_id: room.id,
                 };
                 PlayersService::new(db)
-                    .add_player(in_player)
+                    .add_player(in_player, Vec::new())
                     .expect(format!("Can't create player with name \"{}\"", name).as_str());
             }
 
@@ -102,7 +104,7 @@ async fn test_players_crud() {
             room_id: room.id,
         };
         PlayersService::new(db)
-            .add_player(in_player)
+            .add_player(in_player, Vec::new())
             .expect(format!("Can't create player with name \"{}\"", name).as_str());
 
         // Trying to create a player with the same name
@@ -121,14 +123,17 @@ async fn test_players_crud() {
 
     // 4. Trying to add player if the room already started game or after ended the game
     {
-        let rooms_service = RoomsService::new(db);
         // Creating room
-        let room = rooms_service.create_room().expect("Can't create room");
+        let mut room = RoomsService::new(db)
+            .create_room()
+            .expect("Can't create room");
 
         // Starting game
+        room.start_game().expect("Can't start the game");
+        let rooms_service = RoomsService::new(db);
         rooms_service
-            .start_game(room.id)
-            .expect("Can't start the game");
+            .update_game(room)
+            .expect("Can't update the game");
 
         // Trying to create a player
         let in_player = json!({
@@ -143,10 +148,11 @@ async fn test_players_crud() {
 
         assert_eq!(response.status(), 423, "Sht, status should be 423 nibba");
 
-        // Encding game
+        // Ending game
+        room.end_game().expect("Error on ending game");
         rooms_service
-            .end_game(room.id)
-            .expect("Can't end the game");
+            .update_game(room)
+            .expect("Error on updating game");
 
         // Trying to create a player
         let in_player = json!({

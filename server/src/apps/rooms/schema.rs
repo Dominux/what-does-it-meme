@@ -2,6 +2,7 @@ table! {
     rooms {
         id -> Uuid,
         state -> Text,
-        timestamp -> Nullable<Timestamp>,
+        current_round_id -> Nullable<Uuid>,
+        expiration_timestamp -> Timestamp,
     }
 }
