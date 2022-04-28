@@ -1,1 +1,7 @@
 server/target
+
+.env
+
+client/node_modules
+client/.vscode
+client/public/build
