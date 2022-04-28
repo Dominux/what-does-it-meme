@@ -379,6 +379,7 @@ impl<'a> StatusService<'a> {
                     .into_iter()
                     .map(|m| {
                         Ok(GameStatusRoundMeme::new(
+                            m.id,
                             m.link,
                             Some(self.get_memes_voters_names(m.voters_ids, &players)?),
                             None,
@@ -403,6 +404,7 @@ impl<'a> StatusService<'a> {
                     .into_iter()
                     .map(|m| {
                         Ok(GameStatusRoundMeme::new(
+                            m.id,
                             m.link,
                             Some(self.get_memes_voters_names(m.voters_ids, &players)?),
                             Some(self.find_player_name(&players, m.player_id)?),

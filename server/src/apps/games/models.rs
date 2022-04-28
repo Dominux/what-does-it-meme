@@ -6,6 +6,7 @@ use crate::apps::{rooms::state_enum::RoomState, rounds::state_enum::RoundState};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameStatusRoundMeme {
+    pub meme_id: uuid::Uuid,
     pub link: String,
     pub voters_names: Option<Vec<String>>,
     pub author_name: Option<String>,
@@ -13,11 +14,13 @@ pub struct GameStatusRoundMeme {
 
 impl GameStatusRoundMeme {
     pub fn new(
+        meme_id: uuid::Uuid,
         link: String,
         voters_names: Option<Vec<String>>,
         author_name: Option<String>,
     ) -> Self {
         Self {
+            meme_id,
             link,
             voters_names,
             author_name,

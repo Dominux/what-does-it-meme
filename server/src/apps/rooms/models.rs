@@ -54,7 +54,7 @@ impl Room {
 
     #[inline]
     pub fn is_expired(&self) -> bool {
-        self.expiration_timestamp.elapsed().is_err()
+        self.expiration_timestamp.elapsed().is_ok()
     }
 
     #[inline]
