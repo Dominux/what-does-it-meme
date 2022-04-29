@@ -21,7 +21,10 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         // Adding cors
-        let cors = Cors::default().allow_any_origin();
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_header()
+            .allow_any_method();
         App::new()
             .app_data(web::Data::new(db_pool.clone()))
             .wrap(cors)

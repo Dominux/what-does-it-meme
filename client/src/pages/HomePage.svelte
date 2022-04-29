@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { Button, Headline, Subhead } from 'attractions'
 	import { push } from 'svelte-spa-router'
+	import api from '../api'
 
 	async function createRoom() {
-		push('/rooms/new_room')
+		try {
+			const room = await api.createRoom()
+			push(`/rooms/${room.id}`)
+		} catch (error) {
+			alert(error)
+		}
 	}
 </script>
 

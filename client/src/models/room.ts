@@ -1,9 +1,29 @@
-type Room = {
+export default class Room {
+	constructor(
+		public id: string,
+		public state: RoomState,
+		public players: Array<Player>,
+		public round: Round,
+		public expiration_timestamp: Date
+	) {}
+
+	static fromApiRoom(apiRoom: ApiRoom): Room {
+		return new Room(
+			apiRoom.id,
+			apiRoom.state,
+			apiRoom.players,
+			apiRoom.round,
+			new Date(apiRoom.expiration_timestamp.secs_since_epoch * 1000) // casting seconds to milliseconds
+		)
+	}
+}
+
+interface ApiRoom {
 	id: string
 	state: RoomState
 	players: Array<Player>
 	round: Round
-	expiration_timestamp: Date
+	expiration_timestamp: { secs_since_epoch: number }
 }
 
 enum RoomState {

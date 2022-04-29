@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Home from './pages/Home.svelte'
-	import Router, { location, link } from 'svelte-spa-router'
-	import Room from './pages/Room.svelte'
+	import HomePage from './pages/HomePage.svelte'
+	import Router from 'svelte-spa-router'
+	import RoomPage from './pages/RoomPage.svelte'
 </script>
 
 <Router
 	routes={{
-		'/': Home,
-		'/rooms/new_room': Room,
+		'/': HomePage,
+		'/rooms/:id': RoomPage,
 	}}
 />
