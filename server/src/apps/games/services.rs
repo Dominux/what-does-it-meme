@@ -344,6 +344,7 @@ impl<'a> StatusService<'a> {
         let game_status_round = match round.state {
             // Here we gotta show only situation_creator_name
             RoundState::SituationCreation => GameStatusRound::new(
+                round.id,
                 round_number,
                 round.state,
                 situation_creator_name,
@@ -362,6 +363,7 @@ impl<'a> StatusService<'a> {
                     .map(|m| self.find_player_name(&players, m.player_id))
                     .collect::<MemeResult<_>>()?;
                 GameStatusRound::new(
+                    round.id,
                     round_number,
                     round.state,
                     situation_creator_name,
@@ -387,6 +389,7 @@ impl<'a> StatusService<'a> {
                     })
                     .collect::<MemeResult<_>>()?;
                 GameStatusRound::new(
+                    round.id,
                     round_number,
                     round.state,
                     situation_creator_name,
@@ -412,6 +415,7 @@ impl<'a> StatusService<'a> {
                     })
                     .collect::<MemeResult<_>>()?;
                 GameStatusRound::new(
+                    round.id,
                     round_number,
                     round.state,
                     situation_creator_name,

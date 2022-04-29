@@ -30,6 +30,7 @@ impl GameStatusRoundMeme {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameStatusRound {
+    pub id: uuid::Uuid,
     pub round_number: u8,
     pub round_state: RoundState,
     pub situation_creator_name: String,
@@ -40,6 +41,7 @@ pub struct GameStatusRound {
 
 impl GameStatusRound {
     pub fn new(
+        id: uuid::Uuid,
         round_number: u8,
         round_state: RoundState,
         situation_creator_name: String,
@@ -48,6 +50,7 @@ impl GameStatusRound {
         reacted_players_names: Option<Vec<String>>,
     ) -> Self {
         Self {
+            id,
             round_number,
             round_state,
             situation_creator_name,
