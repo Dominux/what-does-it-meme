@@ -16,7 +16,7 @@ mod common;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let config = Config::new().unwrap();
+    let config = Config::new().expect("Error on config setup");
     let db_pool = db::get_dbpool(config.get_db_uri());
 
     HttpServer::new(move || {

@@ -12,9 +12,6 @@ struct EnvConfig {
     #[envconfig(from = "PORT")]
     pub port: u16,
 
-    #[envconfig(from = "SECRET_KEY")]
-    pub secret: String,
-
     #[envconfig(from = "PGPORT")]
     pub db_port: u16,
 
@@ -61,7 +58,6 @@ struct EnvConfig {
 pub struct Config {
     pub host: String,
     pub port: u16,
-    pub secret: String,
     pub db_port: u16,
     pub db_playername: String,
     pub db_password: String,
@@ -115,7 +111,6 @@ impl Config {
         Ok(Self {
             host: env_config.host,
             port: env_config.port,
-            secret: env_config.secret,
             db_port: env_config.db_port,
             db_playername: env_config.db_playername,
             db_password: env_config.db_password,
