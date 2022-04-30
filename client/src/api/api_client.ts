@@ -16,9 +16,9 @@ export class ApiClient {
 		})
 	}
 
-	async post(path: string, params?: Object, data?: Object) {
+	async post(path: string, data?: Object, params?: Object) {
 		return await axios
-			.post(this.buildAbsolutePath(path), { params: params, data: data })
+			.post(this.buildAbsolutePath(path), data, { params: params })
 			.catch((error) => {
 				throw Error(error.response.data)
 			})

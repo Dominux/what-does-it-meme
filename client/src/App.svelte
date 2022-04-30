@@ -1,12 +1,16 @@
 <script lang="ts">
-	import HomePage from './pages/HomePage.svelte'
 	import Router from 'svelte-spa-router'
+
+	import HomePage from './pages/HomePage.svelte'
 	import RoomPage from './pages/RoomPage.svelte'
+	import DefaultLayout from './layouts/DefaultLayout.svelte'
 </script>
 
-<Router
-	routes={{
-		'/': HomePage,
-		'/rooms/:id': RoomPage,
-	}}
-/>
+<DefaultLayout>
+	<Router
+		routes={{
+			'/': HomePage,
+			'/rooms/:id': RoomPage,
+		}}
+	/>
+</DefaultLayout>

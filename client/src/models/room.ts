@@ -11,7 +11,9 @@ export default class Room {
 		return new Room(
 			apiRoom.id,
 			apiRoom.state,
-			apiRoom.players,
+			apiRoom.players_names?.map((name) => {
+				return { name }
+			}),
 			apiRoom.round,
 			new Date(apiRoom.expiration_timestamp.secs_since_epoch * 1000) // casting seconds to milliseconds
 		)
@@ -21,21 +23,20 @@ export default class Room {
 interface ApiRoom {
 	id: string
 	state: RoomState
-	players: Array<Player>
+	players_names: Array<string>
 	round: Round
 	expiration_timestamp: { secs_since_epoch: number }
 }
 
-enum RoomState {
-	NotStarted = 'NOT_STARTED',
-	Started = 'STARTED',
-	Ended = 'ENDED',
+export enum RoomState {
+	NotStarted = 'NotStarted',
+	Started = 'Started',
+	Ended = 'Ended',
 }
 
-interface Player {
+export interface Player {
 	id?: string
 	name: string
-	room_id: string
 	memes_in_hand?: Array<string>
 }
 

@@ -1,0 +1,26 @@
+<script>
+	import { location } from 'svelte-spa-router'
+	import { Button } from 'attractions'
+
+	import JoinRoomForm from './JoinRoomForm.svelte'
+	import { roomStore } from '../store/room_store'
+	import { playerStore } from '../store/player'
+	import api from '../api'
+</script>
+
+players: {$roomStore.players?.map((p) => p.name)}
+
+<div>
+	<!-- TODO: make it copiable by clicking to the copy icon -->
+	Copy <a href={`/#${$location}`}>link to the room</a>
+</div>
+
+{#if !$playerStore}
+	<JoinRoomForm />
+{/if}
+
+{#if $roomStore.players?.length >= 3}
+	<Button outline on:click={api.startGame}>Start Game</Button>
+{:else}
+	<Button disabled outline>Minimum 3 players needed to start game</Button>
+{/if}

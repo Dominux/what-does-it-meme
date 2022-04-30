@@ -12,14 +12,18 @@ use crate::{
     common::{db::DBPool, errors::MemeResult},
 };
 
+#[derive(Deserialize)]
+struct QueryRoom {
+    room_id: uuid::Uuid,
+}
+
 #[post("/start")]
 async fn start_game(
     db_pool: web::Data<DBPool>,
-    room_id: web::Query<uuid::Uuid>,
+    query_room: web::Query<QueryRoom>,
 ) -> MemeResult<HttpResponse> {
     let db = db_pool.get()?;
-    let round =
-        web::block(move || GameService::new(&db).start_game(room_id.into_inner())).await??;
+    let round = web::block(move || GameService::new(&db).start_game(query_room.room_id)).await??;
     Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(
         models::OutRound::from(round), // Players must not know ids of others, it's a private data
     ))
@@ -96,11 +100,6 @@ async fn vote(db_pool: web::Data<DBPool>, body: web::Json<VoteJSON>) -> MemeResu
         .await??;
 
     Ok(HttpResponse::Ok().status(StatusCode::NO_CONTENT).finish())
-}
-
-#[derive(Deserialize)]
-struct QueryRoom {
-    room_id: uuid::Uuid,
 }
 
 #[get("/score")]
