@@ -10,7 +10,7 @@ async function createRoom(): Promise<Room> {
 	const room = Room.fromApiRoom(res.data)
 
 	// Resetting player if it's another room
-	if (get(roomStore).id !== room.id) {
+	if (get(roomStore)?.id !== room.id) {
 		playerStore.set(null)
 	}
 
@@ -22,6 +22,11 @@ async function createRoom(): Promise<Room> {
 async function fetchRoom(room_id: string): Promise<Room> {
 	const res = await apiClient.get('/games/status', { room_id })
 	const room = Room.fromApiRoom({ ...res.data, id: room_id })
+
+	// Resetting player if it's another room
+	if (get(roomStore)?.id !== room.id) {
+		playerStore.set(null)
+	}
 
 	roomStore.set(room)
 
@@ -41,11 +46,16 @@ async function startGame(): Promise<void> {
 	await apiClient.post('/games/start', null, { room_id: get(roomStore).id })
 }
 
+async function createSituation(situation: string): Promise<void> {
+	await apiClient.post('/games/create_situation', { player_id: get(playerStore).id, situation })
+}
+
 const api = {
 	createRoom: createRoom,
 	fetchRoom: fetchRoom,
 	joinRoom: joinRoom,
 	startGame: startGame,
+	createSituation: createSituation,
 }
 
 export default api

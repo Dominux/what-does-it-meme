@@ -14,8 +14,14 @@
 </script>
 
 <div class="form">
-	<TextField label="Player name" placeholder="Ur mom" bind:value={playerName} outline />
-	<Button disabled={isLoading} filled class="icon" on:click={joinRoom}
+	<TextField
+		maxlength="16"
+		label="Player name"
+		placeholder="Ur mom"
+		bind:value={playerName}
+		outline
+	/>
+	<Button disabled={isLoading} filled on:click={joinRoom}
 		>{#if isLoading}<Loading />{:else}Join room{/if}</Button
 	>
 </div>

@@ -18,6 +18,10 @@ export default class Room {
 			new Date(apiRoom.expiration_timestamp.secs_since_epoch * 1000) // casting seconds to milliseconds
 		)
 	}
+
+	isSituationCreator(playerName: string): boolean {
+		return this.round?.situation_creator_name === playerName
+	}
 }
 
 interface ApiRoom {
@@ -50,12 +54,12 @@ type Round = {
 	reacted_players_names: Array<string>
 }
 
-enum RoundState {
-	SituationCreation = 'SITUATION_CREATION',
-	ChoosingMemes = 'CHOOSING_MEMES',
-	Voting = 'VOTING',
-	ShowingResults = 'SHOWING_RESULTS',
-	Ended = 'ENDED',
+export enum RoundState {
+	SituationCreation = 'SituationCreation',
+	ChoosingMemes = 'ChoosingMemes',
+	Voting = 'Voting',
+	ShowingResults = 'ShowingResults',
+	Ended = 'Ended',
 }
 
 type RoundMeme = {

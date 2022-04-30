@@ -2,9 +2,10 @@
 	import api from '../api'
 	import { roomStore } from '../store/room_store'
 	import { onInterval } from '../common/svelte_utils'
-	import { RoomState } from '../models/room'
+	import { RoomState, RoundState } from '../models/room'
 	import NotStartedRoom from '../components/NotStartedRoom.svelte'
 	import { playerStore } from '../store/player'
+	import SituationCreation from '../components/SituationCreation.svelte'
 
 	export let params
 
@@ -30,6 +31,10 @@
 
 	{#if $roomStore.state === RoomState.NotStarted}
 		<NotStartedRoom />
+	{:else if $roomStore.round?.round_state === RoundState.SituationCreation}
+		<SituationCreation />
+	{:else if $roomStore.round?.round_state === RoundState.ChoosingMemes}
+		Choosing memes
 	{/if}
 {:else if isNotFound}
 	<!-- Room not found -->
