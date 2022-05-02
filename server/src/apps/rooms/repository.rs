@@ -81,10 +81,11 @@ impl<'a> RoomsRepository<'a> {
             .eq(RoomState::Ended)
             .and(rooms::expiration_timestamp.le(now));
 
-        // Also deleting all started games, that have been expired af (e.g for a day in our case)
+        // Also deleting abandonded games (all started games, that have been expired af 
+        // (e.g for a 10 minutes in our case))
         let started_predicate = rooms::state
             .eq(RoomState::Started)
-            .and(rooms::expiration_timestamp.le(now - Duration::DAY));
+            .and(rooms::expiration_timestamp.le(now - Duration::MINUTE * 10));
 
         diesel::delete(
             rooms::table.filter(

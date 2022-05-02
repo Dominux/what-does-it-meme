@@ -118,7 +118,7 @@ async fn test_delete_expired_rooms() {
             id: rooms_ids.remove(2),
             state: RoomState::Started,
             current_round_id: None,
-            expiration_timestamp: SystemTime::now() - Duration::DAY,
+            expiration_timestamp: SystemTime::now() - Duration::MINUTE * 10,
         })
         .expect("Error on updating room");
 
