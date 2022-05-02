@@ -19,7 +19,7 @@
 <br />
 {#if $roomStore.isSituationCreator($playerStore.name)}
 	<div class="form">
-		<TextField placeholder="Some situation or funny thing" bind:value={situation} />
+		<TextField placeholder="Some situation or funny thing" bind:value={situation} maxlength="255" />
 		<Button disabled={isLoading || isCreated} filled on:click={createSituation}
 			>{#if isLoading}<Loading />{:else}Create situation{/if}</Button
 		>
