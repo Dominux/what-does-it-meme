@@ -355,7 +355,7 @@ impl<'a> StatusService<'a> {
 
             // Here we gotta show already reacted names and situation
             RoundState::ChoosingMemes => {
-                // collecting players that already choosed memes
+                // collecting players that already chosen memes
                 let reacted_players_names = self
                     .memes_service
                     .list_memes(round.id)?
@@ -375,16 +375,26 @@ impl<'a> StatusService<'a> {
 
             // Here we gotta show memes and already voted players names
             RoundState::Voting => {
+                // collecting players that already voted
+                // TODO: optimize
+                let voted_players = self
+                    .memes_service
+                    .list_memes(round.id)?
+                    .into_iter()
+                    .map(|m| self.get_memes_voters_names(m.voters_ids, &players))
+                    .collect::<MemeResult<Vec<Vec<String>>>>()?
+                    .into_iter()
+                    .flatten()
+                    .collect();
                 let memes = self
                     .memes_service
                     .list_memes(round.id)?
                     .into_iter()
                     .map(|m| {
                         Ok(GameStatusRoundMeme::new(
-                            m.id,
-                            m.link,
-                            Some(self.get_memes_voters_names(m.voters_ids, &players)?),
-                            None,
+                            m.id, m.link,
+                            // Some(self.get_memes_voters_names(m.voters_ids, &players)?),
+                            None, None,
                         ))
                     })
                     .collect::<MemeResult<_>>()?;
@@ -395,7 +405,7 @@ impl<'a> StatusService<'a> {
                     situation_creator_name,
                     round.situation,
                     Some(memes),
-                    None,
+                    Some(voted_players),
                 )
             }
 

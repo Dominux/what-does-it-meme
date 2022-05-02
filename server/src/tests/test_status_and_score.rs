@@ -254,7 +254,7 @@ async fn test_status_and_score() {
         assert!(matches!(status_round.round_state, RoundState::Voting),);
         assert_eq!(status_round.situation_creator_name, situation_creator_name);
         assert_eq!(status_round.situation, round.situation);
-        assert!(status_round.reacted_players_names.is_none());
+        // assert!(status_round.reacted_players_names.is_none());
         // let memes = memes_repo
         //     .list_memes(round.id)
         //     .expect("Error on getting memes")
