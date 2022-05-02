@@ -14,7 +14,7 @@
 
 	async function reactWithMeme(e) {
 		isLoading = true
-		await api.reactWithMeme(e.detail.link)
+		await api.reactWithMeme(e.detail.link).catch((e) => alert(e))
 		isCreated = true
 		isLoading = false
 

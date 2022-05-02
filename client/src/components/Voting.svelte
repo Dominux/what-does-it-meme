@@ -15,7 +15,7 @@
 
 	async function vote(meme_id: string) {
 		isLoading = true
-		await api.vote(meme_id)
+		await api.vote(meme_id).catch((e) => alert(e))
 		isVoted = true
 		isLoading = false
 	}

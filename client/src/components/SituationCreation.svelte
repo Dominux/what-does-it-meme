@@ -10,7 +10,7 @@
 
 	async function createSituation() {
 		isLoading = true
-		await api.createSituation(situation)
+		await api.createSituation(situation).catch((e) => alert(e))
 		isCreated = true
 		isLoading = false
 	}
