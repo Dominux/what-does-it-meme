@@ -4,8 +4,9 @@
 	import { onInterval } from '../common/svelte_utils'
 	import { RoomState, RoundState } from '../models/room'
 	import NotStartedRoom from '../components/NotStartedRoom.svelte'
-	import { playerStore } from '../store/player'
+	import { playerStore } from '../store/player_store'
 	import SituationCreation from '../components/SituationCreation.svelte'
+	import ChoosingMeme from '../components/ChoosingMeme.svelte'
 
 	export let params
 
@@ -34,7 +35,9 @@
 	{:else if $roomStore.round?.round_state === RoundState.SituationCreation}
 		<SituationCreation />
 	{:else if $roomStore.round?.round_state === RoundState.ChoosingMemes}
-		Choosing memes
+		<ChoosingMeme />
+	{:else if $roomStore.round?.round_state === RoundState.Voting}
+		voting
 	{/if}
 {:else if isNotFound}
 	<!-- Room not found -->

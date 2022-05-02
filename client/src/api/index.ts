@@ -1,7 +1,7 @@
 import { get } from 'svelte/store'
 
 import Room, { Player } from '../models/room'
-import { playerStore } from '../store/player'
+import { playerStore } from '../store/player_store'
 import { roomStore } from '../store/room_store'
 import apiClient from './api_client'
 
@@ -50,12 +50,21 @@ async function createSituation(situation: string): Promise<void> {
 	await apiClient.post('/games/create_situation', { player_id: get(playerStore).id, situation })
 }
 
+async function reactWithMeme(link: string) {
+	await apiClient.post('/games/react_with_meme', {
+		link,
+		player_id: get(playerStore).id,
+		round_id: get(roomStore).round?.id,
+	})
+}
+
 const api = {
 	createRoom: createRoom,
 	fetchRoom: fetchRoom,
 	joinRoom: joinRoom,
 	startGame: startGame,
 	createSituation: createSituation,
+	reactWithMeme: reactWithMeme,
 }
 
 export default api

@@ -1,7 +1,7 @@
 <script>
 	import { Button, Loading, TextField } from 'attractions'
 	import api from '../api'
-	import { playerStore } from '../store/player'
+	import { playerStore } from '../store/player_store'
 	import { roomStore } from '../store/room_store'
 
 	let situation = ''
@@ -16,11 +16,12 @@
 	}
 </script>
 
+<br />
 {#if $roomStore.isSituationCreator($playerStore.name)}
 	<div class="form">
 		<TextField placeholder="Some situation or funny thing" bind:value={situation} />
 		<Button disabled={isLoading || isCreated} filled on:click={createSituation}
-			>{#if isLoading}<Loading />{:else}Join room{/if}</Button
+			>{#if isLoading}<Loading />{:else}Create situation{/if}</Button
 		>
 	</div>
 {/if}

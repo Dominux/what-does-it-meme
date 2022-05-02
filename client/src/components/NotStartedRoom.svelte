@@ -4,7 +4,7 @@
 
 	import JoinRoomForm from './JoinRoomForm.svelte'
 	import { roomStore } from '../store/room_store'
-	import { playerStore } from '../store/player'
+	import { playerStore } from '../store/player_store'
 	import api from '../api'
 </script>
 
