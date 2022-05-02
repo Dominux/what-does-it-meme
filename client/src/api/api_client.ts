@@ -4,7 +4,7 @@ import axios from 'axios'
  * Api client to work with
  */
 export class ApiClient {
-	constructor(public apiURI: string) {}
+	constructor(readonly apiURI: string) {}
 
 	protected buildAbsolutePath(path: string): string {
 		return new URL(path, this.apiURI).toString()

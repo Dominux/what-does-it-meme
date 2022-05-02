@@ -58,6 +58,19 @@ async function reactWithMeme(link: string) {
 	})
 }
 
+async function vote(meme_id: string) {
+	await apiClient.post('/games/vote', {
+		meme_id,
+		player_id: get(playerStore).id,
+		round_id: get(roomStore).round?.id,
+	})
+}
+
+async function get_score(): Promise<{ [key: string]: number }> {
+	const res = await apiClient.get('/games/score', { room_id: get(roomStore)?.id })
+	return res.data
+}
+
 const api = {
 	createRoom: createRoom,
 	fetchRoom: fetchRoom,
@@ -65,6 +78,8 @@ const api = {
 	startGame: startGame,
 	createSituation: createSituation,
 	reactWithMeme: reactWithMeme,
+	vote: vote,
+	get_score: get_score,
 }
 
 export default api
