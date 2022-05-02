@@ -2,6 +2,7 @@
 	import { Loading } from 'attractions'
 
 	import api from '../api'
+	import { lastMemeReactionStore } from '../store/last_meme_reaction_store'
 
 	import { playerStore } from '../store/player_store'
 
@@ -16,6 +17,8 @@
 		await api.reactWithMeme(e.detail.link)
 		isCreated = true
 		isLoading = false
+
+		lastMemeReactionStore.set(e.detail.link)
 	}
 </script>
 

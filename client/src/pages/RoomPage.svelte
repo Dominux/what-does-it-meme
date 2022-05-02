@@ -7,6 +7,7 @@
 	import { playerStore } from '../store/player_store'
 	import SituationCreation from '../components/SituationCreation.svelte'
 	import ChoosingMeme from '../components/ChoosingMeme.svelte'
+	import Voting from '../components/Voting.svelte'
 
 	export let params
 
@@ -37,7 +38,9 @@
 	{:else if $roomStore.round?.round_state === RoundState.ChoosingMemes}
 		<ChoosingMeme />
 	{:else if $roomStore.round?.round_state === RoundState.Voting}
-		voting
+		<Voting />
+	{:else if $roomStore.round?.round_state === RoundState.ShowingResults}
+		showing results
 	{/if}
 {:else if isNotFound}
 	<!-- Room not found -->
