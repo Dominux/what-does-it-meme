@@ -116,7 +116,8 @@ impl From<R2d2Error> for MemeError {
 }
 
 impl From<EnvconfigError> for MemeError {
-    fn from(_: EnvconfigError) -> Self {
+    fn from(e: EnvconfigError) -> Self {
+        println!("Config Error: {}", e);
         Self::Unknown
     }
 }
