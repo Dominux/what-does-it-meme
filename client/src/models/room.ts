@@ -44,6 +44,11 @@ export interface Player {
 	memes_in_hand?: Array<string>
 }
 
+export type PendingPlayer = {
+	name: string
+	isReady: boolean
+}
+
 type Round = {
 	id: string
 	round_number: number

@@ -1,5 +1,14 @@
-<nav>
-	<a href="/">Home</a>
-</nav>
+<main>
+	<nav>
+		<a href="/">Home</a>
+	</nav>
 
-<slot />
+	<slot />
+</main>
+
+<style>
+	main {
+		max-width: 1080px;
+		margin: 0 auto;
+	}
+</style>

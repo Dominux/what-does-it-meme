@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { Loading } from 'attractions'
 	import { get } from 'svelte/store'
+	import { Loading } from 'attractions'
 
 	import api from '../api'
 	import { lastMemeReactionStore } from '../store/last_meme_reaction_store'
-
 	import { playerStore } from '../store/player_store'
-
 	import { roomStore } from '../store/room_store'
+
 	import MemeCard from './MemeCard.svelte'
+	import PlayersProgress from './PlayersProgress.svelte'
 
 	let isVoted = false
 	let isLoading = false
@@ -19,6 +19,10 @@
 		isVoted = true
 		isLoading = false
 	}
+
+	$: pendingPlayers = $roomStore.players.map((p) => {
+		return { name: p.name, isReady: $roomStore.round?.reacted_players_names.includes(p.name) }
+	})
 
 	$: memes = $roomStore.round?.memes.filter((meme) => meme.link !== get(lastMemeReactionStore))
 </script>
@@ -33,23 +37,24 @@
 	{#if isLoading}
 		<Loading />
 	{:else}
-		<ul class="memes-to-vote">
+		<div class="memes-to-vote">
 			{#each memes as meme}
 				<li>
 					<MemeCard link={meme.link} on:click={() => vote(meme.meme_id)} />
 				</li>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 {:else}
 	Wait for others to vote
 {/if}
 
 <br />
-voted_players: {$roomStore.round?.reacted_players_names}
+
+<PlayersProgress players={pendingPlayers} />
 
 <style>
 	.memes-to-vote {
-		list-style-type: none;
+		display: flex;
 	}
 </style>

@@ -28,6 +28,6 @@
 
 <style>
 	.form {
-		margin: 3em 25% 0;
+		margin: 3rem;
 	}
 </style>
