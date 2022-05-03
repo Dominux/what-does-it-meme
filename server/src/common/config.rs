@@ -12,20 +12,8 @@ struct EnvConfig {
     #[envconfig(from = "PORT")]
     pub port: u16,
 
-    #[envconfig(from = "PGPORT")]
-    pub db_port: u16,
-
-    #[envconfig(from = "POSTGRES_USER")]
-    pub db_playername: String,
-
-    #[envconfig(from = "POSTGRES_PASSWORD")]
-    pub db_password: String,
-
-    #[envconfig(from = "POSTGRES_DB")]
-    pub db_name: String,
-
-    #[envconfig(from = "DB_HOST")]
-    pub db_host: String,
+    #[envconfig(from = "DATABASE_URL")]
+    pub db_url: String,
 
     #[envconfig(from = "MAX_ROOMS_COUNT")]
     pub max_rooms_count: u8,
@@ -58,11 +46,7 @@ struct EnvConfig {
 pub struct Config {
     pub host: String,
     pub port: u16,
-    pub db_port: u16,
-    pub db_playername: String,
-    pub db_password: String,
-    pub db_name: String,
-    pub db_host: String,
+    pub db_url: String,
     pub max_rooms_count: u8,
     pub players_minimum: u8,
     pub players_limit: i64,
@@ -111,11 +95,7 @@ impl Config {
         Ok(Self {
             host: env_config.host,
             port: env_config.port,
-            db_port: env_config.db_port,
-            db_playername: env_config.db_playername,
-            db_password: env_config.db_password,
-            db_name: env_config.db_name,
-            db_host: env_config.db_host,
+            db_url: env_config.db_url,
             max_rooms_count: env_config.max_rooms_count,
             players_minimum: env_config.players_minimum,
             players_limit: env_config.players_limit,
@@ -139,17 +119,5 @@ impl Config {
         env::var(env_var)?
             .parse::<T>()
             .map_err(|_| MemeError::Unknown)
-    }
-
-    #[inline]
-    pub fn get_db_uri(&self) -> String {
-        format!(
-            "postgresql://{playername}:{password}@{host}:{port}/{dbname}",
-            playername = self.db_playername,
-            password = self.db_password,
-            host = self.db_host,
-            port = self.db_port,
-            dbname = self.db_name,
-        )
     }
 }

@@ -1,3 +1,6 @@
+-- CREATE DATABASE test;
+-- CREATE DATABASE memes;
+
 -- CREATE TYPE RoomState AS ENUM ('not_started', 'started', 'ended');
 
 CREATE TABLE rooms (

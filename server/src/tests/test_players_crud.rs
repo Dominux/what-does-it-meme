@@ -1,7 +1,7 @@
 use actix_web::{test, web, App};
+use diesel::prelude::*;
 use lazy_static::lazy_static;
 use serde_json::json;
-use diesel::prelude::*;
 
 use crate::apps::players::models::InPlayer;
 use crate::apps::players::router::register_router as players_router;
@@ -16,7 +16,7 @@ use crate::common::{
 lazy_static! {
     static ref DB_POOL: DBPool = {
         let config = Config::new().unwrap();
-        get_dbpool(config.get_db_uri())
+        get_dbpool(config.db_url)
     };
     static ref NAMES: [&'static str; 6] =
         ["ur mom 1", "ur mom 2", "ur mom 3", "ur mom 4", "ur mom 5", "ur mom 6",];

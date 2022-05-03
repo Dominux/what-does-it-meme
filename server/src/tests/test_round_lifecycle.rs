@@ -23,7 +23,7 @@ use crate::common::{
 lazy_static! {
     static ref DB_POOL: DBPool = {
         let config = Config::new().unwrap();
-        get_dbpool(config.get_db_uri())
+        get_dbpool(config.db_url)
     };
 }
 
