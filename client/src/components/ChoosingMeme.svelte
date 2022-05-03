@@ -8,9 +8,16 @@
 
 	import { roomStore } from '../store/room_store'
 	import HandWithMemes from './HandWithMemes.svelte'
+	import PlayersProgress from './PlayersProgress.svelte'
 
 	let isCreated = false
 	let isLoading = false
+
+	$: pendingPlayers = $roomStore.players
+		.filter((p) => p.name !== $roomStore.round?.situation_creator_name)
+		.map((p) => {
+			return { name: p.name, isReady: $roomStore.round?.reacted_players_names.includes(p.name) }
+		})
 
 	async function reactWithMeme(e) {
 		isLoading = true
@@ -39,4 +46,4 @@
 {/if}
 
 <br />
-reacted_players_names: {$roomStore.round?.reacted_players_names}
+<PlayersProgress players={pendingPlayers} />

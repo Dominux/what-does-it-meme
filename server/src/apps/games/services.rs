@@ -410,7 +410,10 @@ impl<'a> StatusService<'a> {
             }
 
             // Here we gotta show all the info for the round
-            RoundState::ShowingResults => {
+            // 
+            // Here we have ended rounds too cause we refreshing it's state from db
+            // after checking, so it might already be changed by some concurent request
+            RoundState::ShowingResults | RoundState::Ended => {
                 let memes = self
                     .memes_service
                     .list_memes(round.id)?
@@ -434,9 +437,6 @@ impl<'a> StatusService<'a> {
                     None,
                 )
             }
-
-            // Here is an unreachable place
-            RoundState::Ended => unreachable!(),
         };
 
         let game_status = GameStatus::new(

@@ -6,6 +6,8 @@
 	import { roomStore } from '../store/room_store'
 	import { playerStore } from '../store/player_store'
 	import api from '../api'
+
+	const minPlayers = process.env.PLAYERS_MINIMUM | 3
 </script>
 
 players: {$roomStore.players?.map((p) => p.name)}
@@ -17,10 +19,8 @@ players: {$roomStore.players?.map((p) => p.name)}
 
 {#if !$playerStore}
 	<JoinRoomForm />
-{/if}
-
-{#if $roomStore.players?.length >= 3}
+{:else if $roomStore.players?.length >= minPlayers}
 	<Button outline on:click={api.startGame}>Start Game</Button>
 {:else}
-	<Button disabled outline>Minimum 3 players needed to start game</Button>
+	<Button disabled outline>Minimum {minPlayers} players needed to start game</Button>
 {/if}

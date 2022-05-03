@@ -25,9 +25,3 @@
 		>
 	</div>
 {/if}
-
-<style>
-	.form {
-		margin: 3em 25% 0;
-	}
-</style>

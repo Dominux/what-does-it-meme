@@ -9,7 +9,7 @@
 </script>
 
 <div class="meme-card-wrapper">
-	<Card
+	<Card tight={true}
 		><div on:click={(e) => dispatch('click', e)} class="meme-card">
 			<img src={link} alt="meme" class="meme-img" />
 		</div></Card
@@ -18,21 +18,18 @@
 
 <style>
 	.meme-card-wrapper {
-		margin: 20px;
-		transition: all 0.25s linear;
-	}
-	.meme-card-wrapper:hover {
-		margin: 0;
+		width: 300px;
+		margin: 0.3rem;
 	}
 
 	.meme-card {
 		height: 400px;
+		display: flex;
+		align-items: center;
+		padding: 0.3rem;
 	}
 
 	.meme-img {
 		width: 100%;
-		height: auto;
-		max-height: 100%;
-		vertical-align: middle;
 	}
 </style>

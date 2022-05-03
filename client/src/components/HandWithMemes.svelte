@@ -21,7 +21,7 @@
 		snap: true,
 		perPage: 3,
 		// gap: 5,
-		autoWidth: false,
+		autoWidth: true,
 		pagination: false,
 		focus: 'center',
 	}}

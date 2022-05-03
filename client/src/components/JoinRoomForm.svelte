@@ -27,7 +27,7 @@
 </div>
 
 <style>
-	.form {
-		margin: 3rem;
+	:global(.form) {
+		margin: 1em 8%;
 	}
 </style>

@@ -20,9 +20,11 @@
 		isLoading = false
 	}
 
-	$: pendingPlayers = $roomStore.players.map((p) => {
-		return { name: p.name, isReady: $roomStore.round?.reacted_players_names.includes(p.name) }
-	})
+	$: pendingPlayers = $roomStore.players
+		.filter((p) => p.name !== $roomStore.round?.situation_creator_name)
+		.map((p) => {
+			return { name: p.name, isReady: $roomStore.round?.reacted_players_names.includes(p.name) }
+		})
 
 	$: memes = $roomStore.round?.memes.filter((meme) => meme.link !== get(lastMemeReactionStore))
 </script>
@@ -39,9 +41,7 @@
 	{:else}
 		<div class="memes-to-vote">
 			{#each memes as meme}
-				<li>
-					<MemeCard link={meme.link} on:click={() => vote(meme.meme_id)} />
-				</li>
+				<MemeCard link={meme.link} on:click={() => vote(meme.meme_id)} />
 			{/each}
 		</div>
 	{/if}
@@ -56,5 +56,7 @@
 <style>
 	.memes-to-vote {
 		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 </style>
