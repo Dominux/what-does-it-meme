@@ -25,5 +25,6 @@ export class ApiClient {
 	}
 }
 
-const apiClient = new ApiClient('http://localhost:10001')
+// const apiClient = new ApiClient('http://localhost:10001')
+const apiClient = new ApiClient('https://what-does-it-meme.herokuapp.com')
 export default apiClient
