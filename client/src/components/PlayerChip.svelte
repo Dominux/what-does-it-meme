@@ -4,7 +4,7 @@
 </script>
 
 <div class="player-chip">
-	<Chip>{name}</Chip>
+	<Chip><slot />{name}</Chip>
 </div>
 
 <style>

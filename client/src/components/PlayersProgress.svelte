@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Dot } from 'attractions'
 	import type { PendingPlayer } from '../models/room'
 
 	import PlayerChip from './PlayerChip.svelte'
@@ -10,7 +11,7 @@
 	{#each players as { name, isReady }}
 		<li>
 			<div class:player-ready={isReady}>
-				<PlayerChip {name} />
+				<PlayerChip {name}><Dot success={isReady} attention={!isReady} /></PlayerChip>
 			</div>
 		</li>
 	{/each}

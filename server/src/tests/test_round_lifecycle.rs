@@ -205,7 +205,7 @@ async fn test_react_with_memes() {
             .to_request();
 
         let response = test::call_service(&mut app, req).await;
-        assert_eq!(response.status(), 201, "Sht, status should be 201 nibba");
+        assert_eq!(response.status(), 201, "{:?}", response.into_body());
 
         test::read_body_json(response).await
     };

@@ -27,8 +27,6 @@
 {#if $roomStore?.id === params.id && !isNotFound}
 	<!-- We are inside right room -->
 
-	<h1>Current player: {$playerStore?.id}</h1>
-
 	{$roomStore.expiration_timestamp}
 
 	{#if $roomStore.state === RoomState.NotStarted}
