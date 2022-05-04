@@ -2,13 +2,13 @@
 #[macro_use]
 extern crate diesel;
 
-use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 
 use apps::games::router::register_router as games_router;
 use apps::players::router::register_router as players_router;
 use apps::rooms::router::register_router as rooms_router;
 use common::config::Config;
+use common::cors::build_cors;
 use common::db;
 
 mod apps;
@@ -21,10 +21,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         // Adding cors
-        let cors = Cors::default()
-            .allow_any_origin()
-            .allow_any_header()
-            .allow_any_method();
+        let cors = build_cors(config.allowed_origins.as_str());
         App::new()
             .app_data(web::Data::new(db_pool.clone()))
             .wrap(cors)

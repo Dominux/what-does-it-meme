@@ -12,6 +12,9 @@ struct EnvConfig {
     #[envconfig(from = "PORT")]
     pub port: u16,
 
+    #[envconfig(from = "ALLOWED_ORIGINS")]
+    pub allowed_origins: String,
+
     #[envconfig(from = "DATABASE_URL")]
     pub db_url: String,
 
@@ -46,6 +49,7 @@ struct EnvConfig {
 pub struct Config {
     pub host: String,
     pub port: u16,
+    pub allowed_origins: String,
     pub db_url: String,
     pub max_rooms_count: u8,
     pub players_minimum: u8,
@@ -95,6 +99,7 @@ impl Config {
         Ok(Self {
             host: env_config.host,
             port: env_config.port,
+            allowed_origins: env_config.allowed_origins,
             db_url: env_config.db_url,
             max_rooms_count: env_config.max_rooms_count,
             players_minimum: env_config.players_minimum,
