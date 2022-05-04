@@ -31,6 +31,10 @@
 		justify-content: space-between;
 	}
 
+	h4 {
+		margin: 0.5rem;
+	}
+
 	.name-block {
 		position: absolute;
 		top: 0;

@@ -4,7 +4,7 @@
 
 	import PlayerChip from './PlayerChip.svelte'
 
-	export let players: Array<PendingPlayer>
+	export let players: Array<PendingPlayer> = []
 </script>
 
 <ul class="players-progress">

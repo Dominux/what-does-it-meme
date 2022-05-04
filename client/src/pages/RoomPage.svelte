@@ -8,6 +8,7 @@
 	import SituationCreation from '../components/SituationCreation.svelte'
 	import ChoosingMeme from '../components/ChoosingMeme.svelte'
 	import Voting from '../components/Voting.svelte'
+	import CountDown from '../components/CountDown.svelte'
 
 	export let params
 
@@ -27,7 +28,9 @@
 {#if $roomStore?.id === params.id && !isNotFound}
 	<!-- We are inside right room -->
 
-	{$roomStore.expiration_timestamp}
+	{#if $roomStore.round?.round_state !== RoundState.ShowingResults}
+		<CountDown expireDate={$roomStore.expiration_timestamp} />
+	{/if}
 
 	{#if $roomStore.state === RoomState.NotStarted}
 		<NotStartedRoom />
