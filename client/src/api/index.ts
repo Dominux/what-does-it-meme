@@ -3,6 +3,7 @@ import { get } from 'svelte/store'
 import Room, { Player } from '../models/room'
 import { playerStore } from '../store/player_store'
 import { roomStore } from '../store/room_store'
+import { scoreStore } from '../store/score_store'
 import apiClient from './api_client'
 
 async function createRoom(): Promise<Room> {
@@ -66,9 +67,11 @@ async function vote(meme_id: string) {
 	})
 }
 
-async function get_score(): Promise<{ [key: string]: number }> {
+async function getScore(): Promise<{ [key: string]: number }> {
 	const res = await apiClient.get('/games/score', { room_id: get(roomStore)?.id })
-	return res.data
+	scoreStore.set(res.data)
+
+  return res.data
 }
 
 const api = {
@@ -79,7 +82,7 @@ const api = {
 	createSituation: createSituation,
 	reactWithMeme: reactWithMeme,
 	vote: vote,
-	get_score: get_score,
+	getScore: getScore,
 }
 
 export default api

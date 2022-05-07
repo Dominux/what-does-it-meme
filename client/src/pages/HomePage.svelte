@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Headline, Subhead } from 'attractions'
+	import { Button, Chip, Headline, Subhead } from 'attractions'
 	import { push } from 'svelte-spa-router'
 	import api from '../api'
 
@@ -14,6 +14,9 @@
 </script>
 
 <div class="header">
+  <div class="beta-sht">
+    <Chip>Beta</Chip>
+  </div>
 	<Headline>What Does it Meme</Headline>
 	<Subhead>THe best game EVER!!!</Subhead>
 </div>
@@ -23,6 +26,15 @@
 </div>
 
 <style>
+  .beta-sht {
+    width: fit-content;
+    font-size: 50%;
+    z-index: 99;
+    position: absolute;
+    /* margin-right: 20%; */
+    margin-left: 83%;
+  }
+
 	.header {
 		font-size: 220%;
 		display: flex;
