@@ -56,11 +56,17 @@ async function createSituation(situation: string): Promise<void> {
 }
 
 async function reactWithMeme(link: string) {
-	await apiClient.post('/games/react_with_meme', {
+	const res = await apiClient.post('/games/react_with_meme', {
 		link,
 		player_id: get(playerStore).id,
 		round_id: get(roomStore).round?.id,
 	})
+  
+  // Removing old meme and pushing a new one
+  const player = get(playerStore)
+  player.memes_in_hand = player.memes_in_hand.filter(meme => meme.link != link)
+  player.memes_in_hand.push(res.data.new_meme)
+  playerStore.set(player)
 }
 
 async function vote(meme_id: string) {
