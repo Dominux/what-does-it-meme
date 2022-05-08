@@ -152,7 +152,7 @@ async fn test_status_and_score() {
 
         // Creating situation
         game_service
-            .create_situation(round.situation_creator_id, "Lol joke".to_string())
+            .create_situation(round.id, round.situation_creator_id, "Lol joke".to_string())
             .expect("Error on creating situation");
 
         // 2.2. Checking status after situation creation

@@ -53,12 +53,16 @@ impl<'a> RoundsService<'a> {
 
     pub fn create_situation(
         &self,
+        round_id: uuid::Uuid,
         situation_creator_id: uuid::Uuid,
         situation: String,
     ) -> MemeResult<()> {
-        let mut round = self
-            .repo
-            .get_round_by_situation_creator_id(situation_creator_id)?;
+        let mut round = self.repo.get_round(round_id)?;
+
+		// Checking if the player is the round's situation creator
+		if round.situation_creator_id != situation_creator_id {
+			return Err(MemeError::NotFound)
+		}
 
         // Checking if it's right state
         if !matches!(round.state, RoundState::SituationCreation) {

@@ -75,11 +75,12 @@ impl<'a> GameService<'a> {
     /// Method to create a situation
     pub fn create_situation(
         &self,
+        round_id: uuid::Uuid,
         situation_creator_id: uuid::Uuid,
         situation: String,
     ) -> MemeResult<()> {
         self.rounds_service
-            .create_situation(situation_creator_id, situation)
+            .create_situation(round_id, situation_creator_id, situation)
     }
 
     /// Method to react on situation with meme
@@ -410,7 +411,7 @@ impl<'a> StatusService<'a> {
             }
 
             // Here we gotta show all the info for the round
-            // 
+            //
             // Here we have ended rounds too cause we refreshing it's state from db
             // after checking, so it might already be changed by some concurent request
             RoundState::ShowingResults | RoundState::Ended => {

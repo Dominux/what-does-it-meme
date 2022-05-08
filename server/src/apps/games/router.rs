@@ -35,6 +35,7 @@ async fn start_game(
 
 #[derive(Deserialize)]
 struct CreateSituationJSON {
+    round_id: uuid::Uuid,
     player_id: uuid::Uuid,
     situation: String,
 }
@@ -46,9 +47,10 @@ async fn create_situation(
 ) -> MemeResult<HttpResponse> {
     let db = db_pool.get()?;
     let body = body.into_inner();
-    let round =
-        web::block(move || GameService::new(&db).create_situation(body.player_id, body.situation))
-            .await??;
+    let round = web::block(move || {
+        GameService::new(&db).create_situation(body.round_id, body.player_id, body.situation)
+    })
+    .await??;
     Ok(HttpResponse::Ok().status(StatusCode::CREATED).json(round))
 }
 

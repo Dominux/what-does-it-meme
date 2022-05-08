@@ -48,7 +48,11 @@ async function startGame(): Promise<void> {
 }
 
 async function createSituation(situation: string): Promise<void> {
-	await apiClient.post('/games/create_situation', { player_id: get(playerStore).id, situation })
+	await apiClient.post('/games/create_situation', {
+		round_id: get(roomStore).round.id,
+		player_id: get(playerStore).id,
+		situation,
+	})
 }
 
 async function reactWithMeme(link: string) {
@@ -71,7 +75,7 @@ async function getScore(): Promise<{ [key: string]: number }> {
 	const res = await apiClient.get('/games/score', { room_id: get(roomStore)?.id })
 	scoreStore.set(res.data)
 
-  return res.data
+	return res.data
 }
 
 const api = {

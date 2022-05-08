@@ -39,17 +39,17 @@ impl<'a> RoundsRepository<'a> {
         Ok(round)
     }
 
-    pub fn get_round_by_situation_creator_id(
-        &self,
-        situation_creator_id: uuid::Uuid,
-    ) -> MemeResult<models::Round> {
-        use crate::apps::rounds::schema::rounds;
+    // pub fn (
+    //     &self,
+    //     situation_creator_id: uuid::Uuid,
+    // ) -> MemeResult<models::Round> {
+    //     use crate::apps::rounds::schema::rounds;
 
-        let round = rounds::table
-            .filter(rounds::columns::situation_creator_id.eq(situation_creator_id))
-            .first::<models::Round>(self.db)?;
-        Ok(round)
-    }
+    //     let round = rounds::table
+    //         .filter(rounds::columns::situation_creator_id.eq(situation_creator_id))
+    //         .first::<models::Round>(self.db)?;
+    //     Ok(round)
+    // }
 
     pub fn count_rounds(&self, _room_id: uuid::Uuid) -> MemeResult<u8> {
         use crate::apps::rounds::schema::rounds::dsl::*;

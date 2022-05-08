@@ -66,7 +66,7 @@ async fn test_create_situation() {
         };
         let response = test::call_service(&mut app, req).await;
 
-        assert_eq!(response.status(), 404, "Sht, status should be 404 nibba");
+        assert_eq!(response.status(), 400, "{:?}", response.into_body());
     }
 
     let game_service = GameService::new(db);
@@ -88,6 +88,7 @@ async fn test_create_situation() {
     {
         let req = {
             let body = json!({
+                "round_id": round.id,
                 "player_id": round.situation_creator_id,
                 "situation": "Some hilarious joke"
             });
@@ -111,6 +112,7 @@ async fn test_create_situation() {
     {
         let req = {
             let body = json!({
+                "round_id": round.id,
                 "player_id": round.situation_creator_id,
                 "situation": "Some hilarious joke"
             });
@@ -136,6 +138,7 @@ async fn test_create_situation() {
 
         let req = {
             let body = json!({
+                "round_id": round.id,
                 "player_id": round.situation_creator_id,
                 "situation": "Some hilarious joke"
             });
@@ -153,6 +156,7 @@ async fn test_create_situation() {
     {
         let req = {
             let body = json!({
+                "round_id": round.id,
                 "player_id": other_players[0].id,
                 "situation": "Some hilarious joke"
             });
