@@ -11,15 +11,13 @@
 	let scorePlayers = []
 
 	onMount(async () => {
-		await Promise.all([
-			(scorePlayers = Object.entries(api.getScore()).sort((a, b) => b[1] - a[1])),
-			setTimeout(async () => (toShowResults = false), secsToShowResults * 1000),
-		])
+		setTimeout(() => (toShowResults = false), secsToShowResults * 1000)
+		scorePlayers = Object.entries(await api.getScore()).sort((a, b) => b[1] - a[1])
 	})
 </script>
 
 <div class="header">
-<H1>Results</H1>
+	<H1>Results</H1>
 </div>
 
 {#if toShowResults}
@@ -50,9 +48,9 @@
 {/if}
 
 <style>
-  .header {
-    text-align: center;
-  }
+	.header {
+		text-align: center;
+	}
 
 	.results {
 		display: flex;
@@ -82,9 +80,9 @@
 	.rating-wrapper {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-    justify-items: center;
-    align-items: center;
-    margin: 3rem 25%;
-    font-size: 150%;
+		justify-items: center;
+		align-items: center;
+		margin: 3rem 25%;
+		font-size: 150%;
 	}
 </style>
