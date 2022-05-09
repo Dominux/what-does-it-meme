@@ -123,7 +123,8 @@ impl From<EnvconfigError> for MemeError {
 }
 
 impl From<ReqwestError> for MemeError {
-    fn from(_: ReqwestError) -> Self {
+    fn from(e: ReqwestError) -> Self {
+        println!("Meme scrapping error: {}", e);
         Self::MemesScrapingError
     }
 }
