@@ -64,7 +64,7 @@ async function reactWithMeme(link: string) {
   
   // Removing old meme and pushing a new one
   const player = get(playerStore)
-  player.memes_in_hand = player.memes_in_hand.filter(meme => meme.link != link)
+  player.memes_in_hand = player.memes_in_hand.filter(meme => meme != link)
   player.memes_in_hand.push(res.data.new_meme)
   playerStore.set(player)
 }
