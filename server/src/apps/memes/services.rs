@@ -62,8 +62,8 @@ impl<'a> MemesService<'a> {
     //  Getting memes
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    pub async fn get_random_memes() -> MemeResult<Vec<String>> {
-        let scrapers = get_scrapers();
+    pub async fn get_random_memes(config: &Config) -> MemeResult<Vec<String>> {
+        let scrapers = get_scrapers(config);
 
         // TODO: implement logic to distribute load among any amount of scrapers
         // Getting random memes
@@ -73,8 +73,8 @@ impl<'a> MemesService<'a> {
         Ok(memes)
     }
 
-    pub async fn get_random_meme() -> MemeResult<String> {
-        let scrapers = get_scrapers();
+    pub async fn get_random_meme(config: &Config) -> MemeResult<String> {
+        let scrapers = get_scrapers(config);
 
         // TODO: implement logic to distribute load among any amount of scrapers
         // Getting random memes

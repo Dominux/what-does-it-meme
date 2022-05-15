@@ -9,7 +9,7 @@ use crate::{
         memes::services::MemesService,
         rounds::models,
     },
-    common::{db::DBPool, errors::MemeResult},
+    common::{config::Config, db::DBPool, errors::MemeResult},
 };
 
 #[derive(Deserialize)]
@@ -67,7 +67,7 @@ async fn react_with_meme(
     body: web::Json<ReactWithMemeJSON>,
 ) -> MemeResult<HttpResponse> {
     // Getting new meme for a player
-    let new_meme = MemesService::get_random_meme().await?;
+    let new_meme = MemesService::get_random_meme(&Config::new()?).await?;
     let new_meme_copy = new_meme.clone();
 
     let db = db_pool.get()?;

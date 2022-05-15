@@ -44,6 +44,9 @@ struct EnvConfig {
 
     #[envconfig(from = "KNOW_YOUR_MEME_MEMEURL")]
     pub know_your_meme_memeurl_relative: String,
+
+    #[envconfig(from = "LOCAL_MEMES_PATH")]
+    pub local_memes_path: String,
 }
 
 pub struct Config {
@@ -74,6 +77,11 @@ pub struct Config {
     pub know_your_meme_pageurl_relative: String,
     pub know_your_meme_pages: u16,
     pub know_your_meme_memeurl_relative: String,
+
+    ///////////////////////////////////////
+    //  Local memes
+    ///////////////////////////////////////
+    pub local_memes_path: String,
 }
 
 impl Config {
@@ -110,6 +118,7 @@ impl Config {
             know_your_meme_pageurl_relative: env_config.know_your_meme_pageurl_relative,
             know_your_meme_pages: env_config.know_your_meme_pages,
             know_your_meme_memeurl_relative: env_config.know_your_meme_memeurl_relative,
+            local_memes_path: env_config.local_memes_path,
             time_to_start_the_game,
             time_to_create_situation,
             time_to_choose_memes,

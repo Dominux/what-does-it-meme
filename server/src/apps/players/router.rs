@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     apps::players::models::InPlayer,
     apps::{memes::services::MemesService, players::services::PlayersService},
-    common::{db::DBPool, errors::MemeResult},
+    common::{config::Config, db::DBPool, errors::MemeResult},
 };
 
 #[post("")]
@@ -16,7 +16,7 @@ async fn add_player(
     let db = db_pool.get()?;
 
     // Creating memes for player
-    let memes = MemesService::get_random_memes().await?;
+    let memes = MemesService::get_random_memes(&Config::new()?).await?;
 
     // Adding player
     let player = web::block(move || PlayersService::new(&db).add_player(player, memes)).await??;
