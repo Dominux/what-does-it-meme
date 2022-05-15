@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getActualLocation } from '../common/location_utils'
 	import { RoomState } from '../models/room'
 
 	import { playerStore } from '../store/player_store'
@@ -7,10 +8,10 @@
 
 <main>
 	<header>
-		<a href="/"><h4>Home</h4></a>
+		<a href={getActualLocation('')}><h4>Home</h4></a>
 
 		{#if $playerStore && $roomStore.state !== RoomState.Ended}
-			<a href={`/#/rooms/${$roomStore.id}`} label="Come back to the game"
+			<a href={getActualLocation(`/#/rooms/${$roomStore.id}`)} label="Come back to the game"
 				><h3 class="name-block">{$playerStore.name}</h3></a
 			>
 		{/if}

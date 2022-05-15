@@ -28,7 +28,7 @@
 {#if $roomStore?.id === params.id && !isNotFound}
 	<!-- We are inside right room -->
 
-	{#if $roomStore.round?.round_state !== RoundState.ShowingResults || $roomStore.state !== RoundState.Ended}
+	{#if $roomStore.round?.round_state !== RoundState.ShowingResults || $roomStore.state !== RoomState.Ended}
 		<CountDown expireDate={$roomStore.expiration_timestamp} />
 	{/if}
 

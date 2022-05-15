@@ -1,5 +1,4 @@
 <script>
-	import { location } from 'svelte-spa-router'
 	import { Button } from 'attractions'
 
 	import JoinRoomForm from './JoinRoomForm.svelte'
@@ -8,12 +7,18 @@
 	import { playerStore } from '../store/player_store'
 	import api from '../api'
 
+	const location = window.location.href
 	const minPlayers = 3
+
+	function copyLocationToClipboard() {
+		navigator.clipboard.writeText(location)
+	}
 </script>
 
-<div>
+<div class="link">
 	<!-- TODO: make it copiable by clicking to the copy icon -->
-	Copy <a href={`/#${$location}`}>link to the room</a>
+	<Button on:click={copyLocationToClipboard} filled small>Copy</Button>
+	<a href={location}>link to the room</a>
 </div>
 
 {#if !$playerStore}
@@ -30,3 +35,13 @@
 		return { name: p.name, isReady: true }
 	})}
 />
+
+<style>
+	.link {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: baseline;
+		gap: 0.3em;
+	}
+</style>
