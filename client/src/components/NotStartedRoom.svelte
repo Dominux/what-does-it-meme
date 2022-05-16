@@ -16,7 +16,6 @@
 </script>
 
 <div class="link">
-	<!-- TODO: make it copiable by clicking to the copy icon -->
 	<Button on:click={copyLocationToClipboard} filled small>Copy</Button>
 	<a href={location}>link to the room</a>
 </div>

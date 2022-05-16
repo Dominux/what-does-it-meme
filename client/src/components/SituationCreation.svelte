@@ -24,4 +24,6 @@
 			>{#if isLoading}<Loading />{:else}Create situation{/if}</Button
 		>
 	</div>
+{:else}
+	Wait for {$roomStore.round?.situation_creator_name} to create situation
 {/if}
