@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Button, Chip, Headline, Subhead } from 'attractions'
+	import { fly, fade, scale } from 'svelte/transition'
+
+	import { Button, Headline, Subhead } from 'attractions'
 	import { push } from 'svelte-spa-router'
 	import api from '../api'
 
@@ -13,28 +15,18 @@
 	}
 </script>
 
-<div class="header">
-  <div class="beta-sht">
-    <Chip>Beta</Chip>
-  </div>
-	<Headline>What Does it Meme</Headline>
-	<Subhead>THe best game EVER!!!</Subhead>
-</div>
+<div out:scale>
+	<div class="header" in:fly={{ y: 250, duration: 1000 }}>
+		<Headline>What Does it Meme</Headline>
+		<Subhead>THe best game EVER!!!</Subhead>
+	</div>
 
-<div class="btn">
-	<Button danger on:click={createRoom}><div class="btn-text">Click to create room</div></Button>
+	<div class="btn" in:fade={{ duration: 800, delay: 1700 }}>
+		<Button danger on:click={createRoom}><div class="btn-text">Click to create room</div></Button>
+	</div>
 </div>
 
 <style>
-  .beta-sht {
-    width: fit-content;
-    font-size: 50%;
-    z-index: 99;
-    position: absolute;
-    /* margin-right: 20%; */
-    margin-left: 83%;
-  }
-
 	.header {
 		font-size: 220%;
 		display: flex;

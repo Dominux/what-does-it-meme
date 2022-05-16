@@ -23,7 +23,7 @@
 	$: pendingPlayers = $roomStore.players
 		.filter((p) => p.name !== $roomStore.round?.situation_creator_name)
 		.map((p) => {
-			return { name: p.name, isReady: $roomStore.round?.reacted_players_names.includes(p.name) }
+			return { name: p.name, isReady: $roomStore.round?.reacted_players_names?.includes(p.name) }
 		})
 
 	$: memes = $roomStore.round?.memes.filter((meme) => meme.link !== get(lastMemeReactionStore))

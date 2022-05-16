@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition'
+
 	import { H1, H2 } from 'attractions'
 	import { onMount } from 'svelte'
 	import api from '../api'
@@ -22,7 +24,7 @@
 
 {#if toShowResults}
 	<!-- Results -->
-	<div class="results">
+	<div class="results" out:slide>
 		{#each $roomStore?.round?.memes || [] as meme}
 			<div>
 				<div class="meme-card-result meme-card-voters">
@@ -39,7 +41,7 @@
 	</div>
 {:else}
 	<!-- Score -->
-	<div class="rating-wrapper">
+	<div class="rating-wrapper" in:slide={{ delay: 500 }}>
 		{#each scorePlayers as scorePlayer}
 			<PlayerChip name={scorePlayer[0]} />
 			{scorePlayer[1]}

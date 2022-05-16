@@ -32,7 +32,7 @@
 <br />
 
 <h3>
-	{$roomStore.round?.situation}
+	{$roomStore.round?.situation || 'Situation is not created'}
 </h3>
 
 {#if !$roomStore.isSituationCreator($playerStore.name) && !isCreated}

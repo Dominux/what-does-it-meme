@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { fade } from 'svelte/transition'
+
 	import { getActualLocation } from '../common/location_utils'
 	import { RoomState } from '../models/room'
 
@@ -7,7 +9,7 @@
 </script>
 
 <main>
-	<header>
+	<header transition:fade={{ delay: 2000 }}>
 		<a href={getActualLocation('')}><h4>Home</h4></a>
 
 		{#if $playerStore && $roomStore.state !== RoomState.Ended}
