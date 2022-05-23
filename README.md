@@ -6,11 +6,11 @@
 
 ### Starting the game
 
-To start the game you need to create a room or enter some already created one by shared link to the room from the room creator or some other player that has the link. After entering a room you can share the link to the room to others you'd like to play with.
+To start the game you need to create a room or to enter some already created one by shared link to the room from the room creator or some other player that has the link. After entering a room you can share the link to the room to others you'd like to play with.
 
 To start the game you need some minimum players limit to be entered the room. The minimum limit is not constant and may be changed by server administrator for all the rooms, but it's assumed to be not lesser than 4, cause in other case it may cause uninteresting game experience or even cause some bugs. Also there's a maximum players limit that's also is changeable by the administrator, but it is recomended to set it to a value around 10 for a fine playing experience!
 
-After the minimum of players were added to the room you can click the "Start game" button to finally start the game (_such a surprisingly, unclear and absolutely unexpectable behavior_).
+Once the minimum of players are added to the room you can click the "Start game" button to finally start the game (_such a surprisingly, unclear and absolutely unexpectable behavior_).
 
 **10 minutes are alloted to start the game after room creation. Once this time is exceeded you are still able to start the game but if anyone will try to create another room and you won't have started the game - the room will be deleted as abandonded and you will need to create another and try again!**
 
