@@ -1,8 +1,0 @@
-server/target
-
-# Env file
-.env
-
-client/node_modules
-client/.vscode
-client/public/build
